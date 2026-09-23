@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>xchess</title>
+<meta name="theme-color" content="#3B2A1C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="xchess">
+<meta name="description" content="Ajedrez: contra la maquina o dos jugadores pasando el telefono.">
+<link rel="icon" href="data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'><rect%20width='64'%20height='64'%20rx='14'%20fill='%233B2A1C'/><rect%20x='8'%20y='8'%20width='24'%20height='24'%20fill='%23E8D5B0'/><rect%20x='32'%20y='32'%20width='24'%20height='24'%20fill='%23E8D5B0'/><rect%20x='32'%20y='8'%20width='24'%20height='24'%20fill='%23A9784E'/><rect%20x='8'%20y='32'%20width='24'%20height='24'%20fill='%23A9784E'/></svg>">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href='data:application/manifest+json,{"name":"xchess","short_name":"xchess","lang":"es","start_url":".","display":"standalone","orientation":"portrait","background_color":"%23F5F1E8","theme_color":"%233B2A1C"}'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F1E8; --raised:#FFFDF7; --sunk:#EAE3D5;
+    --ink:#241D15; --soft:#6E6151; --faint:#9A8C79;
+    --accent:#3B2A1C; --accent-ink:#F7F1E6; --accent-dim:#E6DCC9;
+    --laton:#A97A23; --laton-dim:#F2E6CC;
+    --ok:#3F7D53; --ok-dim:#DFEDE2;
+    --mal:#B23A2B; --mal-dim:#F6DFDB;
+    --line:#DED5C4; --radius:14px;
+    --shadow:0 1px 2px rgba(36,29,21,.07), 0 14px 32px -20px rgba(36,29,21,.45);
+    --sans:'Inter',system-ui,-apple-system,sans-serif;
+    --disp:'Cormorant Garamond',Georgia,serif;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+    /* El tablero no cambia con el tema. Las piezas tienen que leerse igual
+       a las 3 de la tarde y a las 2 de la manana. */
+    --clara:#E9D6B3; --oscura:#A5763F;
+    --marco:#41301F;
+    --pieza-b:#FBF6EA; --pieza-b-borde:#2A2118;
+    --pieza-n:#2B2219; --pieza-n-borde:#100C08;
+    --sel:#C9922B; --ultimo:rgba(201,146,43,.34); --jaque:#C4402E;
+  }
+  :root[data-tema="oscuro"]{
+    --bg:#15120D; --raised:#201B14; --sunk:#0E0B07;
+    --ink:#F0E8D9; --soft:#A2937C; --faint:#6E6252;
+    --accent:#2A1E13; --accent-ink:#F7F1E6; --accent-dim:#2C2317;
+    --laton:#D9AC4A; --laton-dim:#2E2515;
+    --ok:#5FAE77; --ok-dim:#17251A;
+    --mal:#DB6252; --mal-dim:#2A1613;
+    --line:#2F281D;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 14px 32px -20px rgba(0,0,0,.85);
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-tema="claro"]){
+      --bg:#15120D; --raised:#201B14; --sunk:#0E0B07;
+      --ink:#F0E8D9; --soft:#A2937C; --faint:#6E6252;
+      --accent:#2A1E13; --accent-ink:#F7F1E6; --accent-dim:#2C2317;
+      --laton:#D9AC4A; --laton-dim:#2E2515;
+      --ok:#5FAE77; --ok-dim:#17251A;
+      --mal:#DB6252; --mal-dim:#2A1613;
+      --line:#2F281D;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 14px 32px -20px rgba(0,0,0,.85);
+    }
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; height:100%;}
+  body{
+    font-family:var(--sans); background:var(--bg); color:var(--ink);
+    overscroll-behavior:none; -webkit-user-select:none; user-select:none;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  #app{
+    display:flex; flex-direction:column;
+    height:100dvh; height:100svh;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  /* ---------- barra de arriba ---------- */
+  .top{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 14px 6px; flex:0 0 auto;
+  }
+  .marca{
+    font-family:var(--disp); font-size:27px; font-weight:700; line-height:1;
+    letter-spacing:-.01em; margin-right:auto;
+  }
+  .marca span{color:var(--laton);}
+  .ico{
+    width:38px; height:38px; flex:0 0 auto; display:grid; place-items:center;
+    border:1px solid var(--line); border-radius:11px; background:var(--raised);
+    color:var(--soft); cursor:pointer; transition:transform .12s, color .15s;
+  }
+  .ico:active{transform:scale(.93);}
+  .ico svg{width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+
+  /* ---------- fichas de jugador ---------- */
+  .jug{
+    display:flex; align-items:center; gap:9px; padding:0 3px; flex:0 0 auto;
+    height:34px;
+  }
+  .jug .nom{font-size:14px; font-weight:650; letter-spacing:.01em;}
+  .jug .cap{
+    display:flex; align-items:center; gap:0; flex:1 1 auto; min-width:0;
+    overflow:hidden; height:23px;
+  }
+  .jug .cap svg{width:22px; height:22px; margin-right:-8px; opacity:.72;}
+  .jug .vent{
+    font-family:var(--mono); font-size:12px; color:var(--soft); flex:0 0 auto;
+  }
+  .jug .reloj{
+    font-family:var(--mono); font-size:12px; color:var(--faint); flex:0 0 auto;
+  }
+  .jug.activo .nom{color:var(--laton);}
+  .jug .punto{
+    width:7px; height:7px; border-radius:50%; background:transparent; flex:0 0 auto;
+    transition:background .2s;
+  }
+  .jug.activo .punto{background:var(--laton);}
+
+  /* ---------- tablero ---------- */
+  /* En un telefono alto un tablero cuadrado nunca llena la pantalla. El
+     sobrante se reparte arriba y abajo del conjunto (fichas + tablero) para
+     que quede centrado y no como un bache suelto en algun lado. */
+  .zona{
+    flex:1 1 auto; min-height:0; display:grid; place-items:center;
+    padding:4px 11px;
+  }
+  /* El ancho lo pone redimensionar(): es el lado mas grande que entra a lo
+     alto y a lo ancho una vez descontadas las dos fichas de jugador. Asi el
+     hueco que sobra queda repartido arriba y abajo del conjunto, y no como un
+     bache entre el nombre del jugador y el tablero. */
+  .mesa{display:flex; flex-direction:column; gap:7px; width:100%;}
+  .tablero{
+    position:relative;
+    width:100%; aspect-ratio:1;
+    border-radius:8px;
+    box-shadow:0 0 0 5px var(--marco), 0 2px 4px rgba(0,0,0,.18), 0 22px 44px -26px rgba(0,0,0,.6);
+    touch-action:manipulation;
+  }
+  .casillas{position:absolute; inset:0; border-radius:8px; overflow:hidden; display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);}
+  .cas{position:relative;}
+  .cas.c{background:var(--clara);} .cas.o{background:var(--oscura);}
+  /* Un grano muy suave para que no parezca plastico. */
+  .cas::after{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(135deg, rgba(255,255,255,.055), rgba(0,0,0,.05));
+  }
+  .coord{
+    position:absolute; font-size:9px; font-weight:700; font-family:var(--mono);
+    opacity:.5; pointer-events:none; line-height:1;
+  }
+  .coord.f{left:2.5px; top:2.5px;} .coord.c{right:2.5px; bottom:2px;}
+  .cas.c .coord{color:#8A5F31;} .cas.o .coord{color:#F0DDBB;}
+
+  .marcas{position:absolute; inset:0; border-radius:8px; overflow:hidden; display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr); pointer-events:none;}
+  .mk{position:relative;}
+  .mk.ult{background:var(--ultimo);}
+  .mk.sel{background:rgba(201,146,43,.46); box-shadow:inset 0 0 0 3px var(--sel);}
+  .mk.jaque{background:radial-gradient(circle at 50% 50%, rgba(196,64,46,.85), rgba(196,64,46,0) 72%);}
+  .mk.dest::before{
+    content:''; position:absolute; left:50%; top:50%; width:30%; height:30%;
+    transform:translate(-50%,-50%); border-radius:50%;
+    background:rgba(30,22,14,.3);
+  }
+  .mk.come::before{
+    content:''; position:absolute; inset:7%; border-radius:50%;
+    border:4.5px solid rgba(30,22,14,.3); background:transparent;
+  }
+
+  .piezas{position:absolute; inset:0; pointer-events:none;}
+  .pz{
+    position:absolute; left:0; top:0; width:12.5%; height:12.5%;
+    will-change:transform; transition:transform .19s cubic-bezier(.3,.85,.35,1);
+    display:grid; place-items:center;
+  }
+  .pz svg{width:100%; height:100%; display:block; filter:drop-shadow(0 1.5px 1.5px rgba(0,0,0,.28));}
+  .pz.alza{z-index:5;}
+  .pz.sale{transition:opacity .16s; opacity:0;}
+  .tablero.quieto .pz{transition:none;}
+
+  /* ---------- barra de abajo ---------- */
+  .bajo{flex:0 0 auto; padding:2px 12px 10px;}
+  .jugadas{
+    display:flex; align-items:center; gap:6px; overflow-x:auto; padding:6px 2px 8px;
+    scrollbar-width:none; -webkit-overflow-scrolling:touch; height:42px;
+  }
+  .jugadas::-webkit-scrollbar{display:none;}
+  .jd{
+    flex:0 0 auto; font-family:var(--mono); font-size:13px; padding:5px 8px;
+    border-radius:8px; background:var(--sunk); color:var(--soft); white-space:nowrap;
+  }
+  .jd .n{color:var(--faint); margin-right:3px;}
+  .jd.ahora{background:var(--laton-dim); color:var(--ink); font-weight:500;}
+  .jugadas .vacio{font-family:var(--sans); font-size:12.5px; color:var(--faint); padding:4px 2px;}
+
+  .botones{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;}
+  .bt{
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    height:46px; border-radius:12px; border:1px solid var(--line);
+    background:var(--raised); color:var(--ink); font-family:var(--sans);
+    font-size:14px; font-weight:600; cursor:pointer; box-shadow:var(--shadow);
+    transition:transform .12s, opacity .15s;
+  }
+  .bt:active{transform:scale(.97);}
+  .bt[disabled]{opacity:.38; box-shadow:none;}
+  .bt svg{width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round;}
+  .bt.fuerte{background:var(--accent); color:var(--accent-ink); border-color:transparent;}
+
+  /* ---------- hojas / modales ---------- */
+  .velo{
+    position:fixed; inset:0; background:rgba(20,15,10,.5); backdrop-filter:blur(3px);
+    display:flex; align-items:flex-end; justify-content:center; z-index:40;
+    opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  .velo.ver{opacity:1; pointer-events:auto;}
+  .hoja{
+    width:100%; max-width:480px; background:var(--raised);
+    border-radius:20px 20px 0 0; padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+    transform:translateY(16px); transition:transform .22s cubic-bezier(.2,.9,.3,1);
+    box-shadow:0 -10px 40px -12px rgba(0,0,0,.5); max-height:88dvh; overflow-y:auto;
+  }
+  .velo.ver .hoja{transform:translateY(0);}
+  .hoja h2{font-family:var(--disp); font-size:25px; font-weight:700; margin:0 0 3px;}
+  .hoja .sub{font-size:13px; color:var(--soft); margin:0 0 16px;}
+  .grupo{margin-bottom:15px;}
+  .et{font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--faint); margin-bottom:7px;}
+  .ops{display:grid; gap:7px;}
+  .ops.dos{grid-template-columns:1fr 1fr;}
+  .ops.tres{grid-template-columns:1fr 1fr 1fr;}
+  .op{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    padding:11px 8px; border-radius:12px; border:1.5px solid var(--line);
+    background:var(--bg); cursor:pointer; text-align:center;
+    transition:border-color .15s, background .15s, transform .12s;
+  }
+  .op:active{transform:scale(.97);}
+  .op .t{font-size:14px; font-weight:650;}
+  .op .d{font-size:11px; color:var(--soft); line-height:1.3;}
+  .op[aria-checked="true"]{border-color:var(--laton); background:var(--laton-dim);}
+  .op[aria-checked="true"] .t{color:var(--ink);}
+  .fila-sw{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 13px; border:1.5px solid var(--line); border-radius:12px; background:var(--bg);
+    cursor:pointer;
+  }
+  .fila-sw .t{font-size:14px; font-weight:600;}
+  .fila-sw .d{font-size:11.5px; color:var(--soft); margin-top:2px;}
+  .sw{width:44px; height:26px; border-radius:13px; background:var(--sunk); position:relative; flex:0 0 auto; transition:background .18s;}
+  .sw::after{content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:transform .18s;}
+  .fila-sw[aria-checked="true"] .sw{background:var(--laton);}
+  .fila-sw[aria-checked="true"] .sw::after{transform:translateX(18px);}
+
+  .coronar{display:grid; grid-template-columns:repeat(4,1fr); gap:8px;}
+  .coronar button{
+    aspect-ratio:1; border-radius:13px; border:1.5px solid var(--line);
+    background:var(--bg); cursor:pointer; padding:5px; transition:transform .12s, border-color .15s;
+  }
+  .coronar button:active{transform:scale(.94); border-color:var(--laton);}
+  .coronar svg{width:100%; height:100%;}
+
+  .fin{text-align:center; padding:6px 0 4px;}
+  .fin .res{font-family:var(--disp); font-size:42px; font-weight:700; line-height:1; letter-spacing:-.02em;}
+  .fin .mot{font-size:14px; color:var(--soft); margin-top:6px;}
+
+  .aviso{
+    position:fixed; left:50%; bottom:calc(84px + env(safe-area-inset-bottom));
+    transform:translateX(-50%) translateY(10px);
+    background:var(--accent); color:var(--accent-ink); font-size:13px; font-weight:550;
+    padding:9px 15px; border-radius:11px; z-index:50; opacity:0; pointer-events:none;
+    transition:opacity .2s, transform .2s; white-space:nowrap; box-shadow:var(--shadow);
+  }
+  .aviso.ver{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .pensando{
+    display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--laton);
+    margin-left:5px; vertical-align:middle; animation:late 1s ease-in-out infinite;
+  }
+  @keyframes late{0%,100%{opacity:.25; transform:scale(.8);} 50%{opacity:1; transform:scale(1.15);}}
+
+  .pie{text-align:center; font-size:10.5px; color:var(--faint); margin-top:14px; font-family:var(--mono);}
+
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- Juego de piezas: siluetas Staunton planas, dibujadas sobre una peana
+       comun para que las seis lean como un mismo juego. viewBox 45x45. -->
+  <g id="g-peon">
+    <path d="M22.5 9.4a3.9 3.9 0 013.9 3.9 3.9 3.9 0 01-1.25 2.86c2.05 1.24 3.45 3.28 3.45 5.74 0 2.9-1.6 5.3-2.85 7.4h-9.5c-1.25-2.1-2.85-4.5-2.85-7.4 0-2.46 1.4-4.5 3.45-5.74A3.9 3.9 0 0118.6 13.3a3.9 3.9 0 013.9-3.9z"/>
+    <path d="M16.6 31.4h11.8a1.1 1.1 0 011.1 1.1v1.6a1.1 1.1 0 01-1.1 1.1H16.6a1.1 1.1 0 01-1.1-1.1v-1.6a1.1 1.1 0 011.1-1.1z"/>
+    <path d="M16.2 35.6h12.6c.2 2.1 1.5 3.3 3.4 3.9v1.1H12.8v-1.1c1.9-.6 3.2-1.8 3.4-3.9z"/>
+  </g>
+  <g id="g-torre">
+    <path d="M12.4 9.3h4.3v2.7h3.7V9.3h4.2v2.7h3.7V9.3h4.3v6.6h-20.2z"/>
+    <path d="M11.4 15.6h22.2v3.6H11.4z"/>
+    <path d="M14.6 19.9h15.8l-1.1 11.2H15.7z"/>
+    <path d="M14.4 31.4h16.2a1.1 1.1 0 011.1 1.1v1.7a1.1 1.1 0 01-1.1 1.1H14.4a1.1 1.1 0 01-1.1-1.1v-1.7a1.1 1.1 0 011.1-1.1z"/>
+    <path d="M13.6 35.6h17.8c.2 2.1 1.6 3.3 3.6 3.9v1.1H10v-1.1c2-.6 3.4-1.8 3.6-3.9z"/>
+  </g>
+  <g id="g-alfil">
+    <path d="M22.5 7.6a1.95 1.95 0 011.95 1.95c0 .62-.29 1.17-.74 1.53 2.95 2.28 5.89 5.79 5.89 9.42 0 3.62-2.79 6.1-7.1 6.1s-7.1-2.48-7.1-6.1c0-3.63 2.94-7.14 5.89-9.42a1.94 1.94 0 01-.74-1.53A1.95 1.95 0 0122.5 7.6z"/>
+    <path d="M17.8 27.2h9.4l.7 4.2H17.1z" />
+    <path d="M15.9 31.4h13.2a1.1 1.1 0 011.1 1.1v1.7a1.1 1.1 0 01-1.1 1.1H15.9a1.1 1.1 0 01-1.1-1.1v-1.7a1.1 1.1 0 011.1-1.1z"/>
+    <path d="M15.2 35.6h14.6c.2 2.1 1.6 3.3 3.5 3.9v1.1H11.7v-1.1c1.9-.6 3.3-1.8 3.5-3.9z"/>
+  </g>
+  <g id="g-dama">
+    <circle cx="10.6" cy="15.4" r="2.05"/><circle cx="16.5" cy="12.5" r="2.05"/>
+    <circle cx="22.5" cy="11.1" r="2.25"/>
+    <circle cx="28.5" cy="12.5" r="2.05"/><circle cx="34.4" cy="15.4" r="2.05"/>
+    <path d="M11.1 16.8l2.9 11.4h17l2.9-11.4-3.5 4.9-2.6-7.4-2.9 7.7h-2.8l-2.9-7.7-2.6 7.4z"/>
+    <path d="M14 28.2h17l.7 3.2H13.3z"/>
+    <path d="M14 31.4h17a1.1 1.1 0 011.1 1.1v1.7a1.1 1.1 0 01-1.1 1.1H14a1.1 1.1 0 01-1.1-1.1v-1.7A1.1 1.1 0 0114 31.4z"/>
+    <path d="M13.2 35.6h18.6c.2 2.1 1.7 3.3 3.7 3.9v1.1H9.5v-1.1c2-.6 3.5-1.8 3.7-3.9z"/>
+  </g>
+  <g id="g-rey">
+    <path d="M21.2 6.6h2.6v2.9h2.9v2.6h-2.9v3.3h-2.6v-3.3h-2.9V9.5h2.9z"/>
+    <path d="M22.5 15.2c3 0 5.5 1.2 7.1 3 2.7 3 2.7 7.3.4 10.8l-.3.4H15.3l-.3-.4c-2.3-3.5-2.3-7.8.4-10.8 1.6-1.8 4.1-3 7.1-3z"/>
+    <path d="M14.6 29.4h15.8l.6 2H14z"/>
+    <path d="M13.9 31.4h17.2a1.1 1.1 0 011.1 1.1v1.7a1.1 1.1 0 01-1.1 1.1H13.9a1.1 1.1 0 01-1.1-1.1v-1.7a1.1 1.1 0 011.1-1.1z"/>
+    <path d="M13.1 35.6h18.8c.2 2.1 1.7 3.3 3.7 3.9v1.1H9.4v-1.1c2-.6 3.5-1.8 3.7-3.9z"/>
+  </g>
+  <g id="g-caballo">
+    <!-- Perfil mirando a la izquierda: dos orejas, frente, hocico abajo a la
+         izquierda y el cuello arqueado bajando a la derecha. -->
+    <path d="M19.4 9.8l.9-3.2 2.4 3.7c1-.6 2.1-.9 3.2-1l.6-2.4 2.5 3.6c2.4 2 3.6 5.3 3.6 9.9V31.4H15.8v-4.1c0-1.8-1.8-2.8-3.4-1.8-1.8 1.1-3.8.5-4.2-1.2-.4-1.7 1-3.2 2.6-4.8 1.8-1.8 3.2-3.4 4.2-5.4.9-1.8 2-3.4 4.4-4.3z"/>
+    <path d="M14.6 31.4h16.8a1.1 1.1 0 011.1 1.1v1.7a1.1 1.1 0 01-1.1 1.1H14.6a1.1 1.1 0 01-1.1-1.1v-1.7a1.1 1.1 0 011.1-1.1z"/>
+    <path d="M13.8 35.6h18.4c.2 2.1 1.7 3.3 3.6 3.9v1.1H10.2v-1.1c1.9-.6 3.4-1.8 3.6-3.9z"/>
+  </g>
+  <!-- detalles que solo se dibujan con el color del contorno -->
+  <g id="d-alfil"><path d="M20.4 14.4l4.2 4.2M24.6 14.4l-4.2 4.2" fill="none" stroke-linecap="round"/></g>
+  <g id="d-rey"><path d="M15.6 28.4c4.6-2.4 9.2-2.4 13.8 0M17.1 24.7c3.6-1.7 7.2-1.7 10.8 0" fill="none" stroke-linecap="round"/></g>
+  <g id="d-caballo">
+    <circle cx="17.2" cy="15.4" r="1.15" stroke="none"/>
+    <circle cx="11.2" cy="22.1" r=".72" stroke="none" opacity=".7"/>
+    <path d="M27.6 11.6c2 2 3 5 3.1 9.4" fill="none" stroke-linecap="round" opacity=".5"/>
+  </g>
+  <g id="d-torre"><path d="M15.6 19.9l-.6 11.5M29.4 19.9l.6 11.5" fill="none" opacity=".45"/></g>
+</defs></svg>
+
+<div id="app">
+  <div class="top">
+    <div class="marca">x<span>chess</span></div>
+    <div class="ico" id="btTema" role="button" aria-label="Tema">
+      <svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
+    </div>
+    <div class="ico" id="btMenu" role="button" aria-label="Menu">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </div>
+  </div>
+
+  <div class="zona">
+    <div class="mesa" id="mesa">
+      <div class="jug" id="jugArriba">
+        <div class="punto"></div>
+        <div class="nom">Negras</div>
+        <div class="cap" id="capArriba"></div>
+        <div class="vent" id="ventArriba"></div>
+      </div>
+
+      <div class="tablero quieto" id="tablero">
+        <div class="casillas" id="casillas"></div>
+        <div class="marcas" id="marcas"></div>
+        <div class="piezas" id="piezas"></div>
+      </div>
+
+      <div class="jug" id="jugAbajo">
+        <div class="punto"></div>
+        <div class="nom">Blancas</div>
+        <div class="cap" id="capAbajo"></div>
+        <div class="vent" id="ventAbajo"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bajo">
+    <div class="jugadas" id="jugadas"></div>
+    <div class="botones">
+      <button class="bt" id="btDeshacer">
+        <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 010 10h-4"/></svg>
+        Deshacer
+      </button>
+      <button class="bt" id="btGirar">
+        <svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 00-4 4v2"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 004-4v-2"/></svg>
+        Girar
+      </button>
+      <button class="bt fuerte" id="btNueva">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        Nueva
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="velo" id="veloMenu"><div class="hoja">
+  <h2>Partida</h2>
+  <p class="sub">Los cambios arrancan una partida nueva.</p>
+
+  <div class="grupo">
+    <div class="et">Modo</div>
+    <div class="ops dos">
+      <div class="op" role="radio" data-modo="maquina"><div class="t">Contra la maquina</div><div class="d">Vos contra el motor</div></div>
+      <div class="op" role="radio" data-modo="dos"><div class="t">Dos jugadores</div><div class="d">Pasando el telefono</div></div>
+    </div>
+  </div>
+
+  <div class="grupo" id="grNivel">
+    <div class="et">Nivel</div>
+    <div class="ops tres">
+      <div class="op" role="radio" data-nivel="facil"><div class="t">Facil</div><div class="d">Regala piezas</div></div>
+      <div class="op" role="radio" data-nivel="normal"><div class="t">Normal</div><div class="d">Juega decente</div></div>
+      <div class="op" role="radio" data-nivel="dificil"><div class="t">Dificil</div><div class="d">Castiga errores</div></div>
+    </div>
+  </div>
+
+  <div class="grupo" id="grColor">
+    <div class="et">Tus piezas</div>
+    <div class="ops tres">
+      <div class="op" role="radio" data-color="b"><div class="t">Blancas</div><div class="d">Arrancas vos</div></div>
+      <div class="op" role="radio" data-color="n"><div class="t">Negras</div><div class="d">Arranca el motor</div></div>
+      <div class="op" role="radio" data-color="azar"><div class="t">Al azar</div><div class="d">Que decida el sorteo</div></div>
+    </div>
+  </div>
+
+  <div class="grupo" id="grGirar">
+    <div class="fila-sw" id="swGirar" role="switch">
+      <div><div class="t">Girar el tablero</div><div class="d">Cada jugador ve sus piezas abajo</div></div>
+      <div class="sw"></div>
+    </div>
+  </div>
+
+  <div class="grupo">
+    <div class="fila-sw" id="swPistas" role="switch">
+      <div><div class="t">Marcar jugadas legales</div><div class="d">Puntos en las casillas donde podes ir</div></div>
+      <div class="sw"></div>
+    </div>
+  </div>
+
+  <div class="botones" style="grid-template-columns:1fr 1fr">
+    <button class="bt" id="btSeguir">Seguir jugando</button>
+    <button class="bt fuerte" id="btEmpezar">Empezar</button>
+  </div>
+  <div class="pie" id="pieVer"></div>
+</div></div>
+
+<div class="velo" id="veloCorona"><div class="hoja">
+  <h2>Coronacion</h2>
+  <p class="sub">Elegi en que se convierte el peon.</p>
+  <div class="coronar" id="opsCorona"></div>
+</div></div>
+
+<div class="velo" id="veloFin"><div class="hoja">
+  <div class="fin">
+    <div class="res" id="finRes"></div>
+    <div class="mot" id="finMot"></div>
+  </div>
+  <div class="botones" style="grid-template-columns:1fr 1fr; margin-top:18px">
+    <button class="bt" id="btVerFin">Ver tablero</button>
+    <button class="bt fuerte" id="btOtra">Otra partida</button>
+  </div>
+</div></div>
+
+<div class="aviso" id="aviso"></div>
+
+<script id="nucleo">
+/* ============================================================================
+   NUCLEO  -  reglas, evaluacion y busqueda. Nada de DOM aca adentro.
+   Este mismo bloque se mete tal cual en el Worker y en el test: si toco una
+   regla, se toca en los tres lados a la vez.
+
+   Tablero 0x88: indice = fila*16 + columna, valido si (s & 0x88) === 0.
+   La fila 0 es la fila 8 del tablero (la de las negras), asi el render y el
+   FEN se leen de arriba para abajo sin dar vuelta nada.
+   ========================================================================== */
+
+const VACIO=0, PEON=1, CABALLO=2, ALFIL=3, TORRE=4, DAMA=5, REY=6;
+const BLANCO=8, NEGRO=16;
+
+const tipo   = p => p & 7;
+const colorDe= p => p & 24;
+const rival  = c => c === BLANCO ? NEGRO : BLANCO;
+const dentro = s => (s & 0x88) === 0;
+const filaDe = s => s >> 4;
+const colDe  = s => s & 7;
+
+const SALTOS = [-33,-31,-18,-14,14,18,31,33];
+const DIAG   = [-17,-15,15,17];
+const RECT   = [-16,-1,1,16];
+const OCHO   = [-17,-16,-15,-1,1,15,16,17];
+
+/* Banderas del movimiento */
+const F_COME=1, F_PASO=2, F_ENROQUE=4, F_DOBLE=8, F_CORONA=16;
+
+/* Un movimiento entra en un entero: origen(7) | destino(7) | corona(3) | banderas */
+const armar = (de, a, corona, f) => de | (a << 7) | (corona << 14) | (f << 17);
+const mvDe     = m => m & 127;
+const mvA      = m => (m >> 7) & 127;
+const mvCorona = m => (m >> 14) & 7;
+const mvF      = m => m >>> 17;
+
+/* Al mover desde o hacia estas casillas se pierden derechos de enroque.
+   1 = blanco corto, 2 = blanco largo, 4 = negro corto, 8 = negro largo. */
+const MASCARA = new Int8Array(128).fill(15);
+MASCARA[116] = 12; MASCARA[119] = 14; MASCARA[112] = 13;   // e1, h1, a1
+MASCARA[4]   = 3;  MASCARA[7]   = 11; MASCARA[0]   = 7;    // e8, h8, a8
+
+const INICIAL = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+const LETRAS = { p:PEON, n:CABALLO, b:ALFIL, r:TORRE, q:DAMA, k:REY };
+const SIGLAS = ["", "P", "N", "B", "R", "Q", "K"];
+
+function desdeFen(fen){
+  const [tab, turno, enroque, ep, medio, plena] = fen.trim().split(/\s+/);
+  const pos = {
+    t: new Int8Array(128), turno: turno === "w" ? BLANCO : NEGRO,
+    enroque: 0, ep: -1, medio: +medio || 0, plena: +plena || 1,
+    reyes: [-1, -1], pila: [],
+  };
+  let f = 0, c = 0;
+  for (const ch of tab){
+    if (ch === "/"){ f++; c = 0; continue; }
+    if (ch >= "1" && ch <= "8"){ c += +ch; continue; }
+    const p = LETRAS[ch.toLowerCase()] | (ch === ch.toUpperCase() ? BLANCO : NEGRO);
+    const s = f * 16 + c;
+    pos.t[s] = p;
+    if (tipo(p) === REY) pos.reyes[colorDe(p) === BLANCO ? 0 : 1] = s;
+    c++;
+  }
+  if (enroque.includes("K")) pos.enroque |= 1;
+  if (enroque.includes("Q")) pos.enroque |= 2;
+  if (enroque.includes("k")) pos.enroque |= 4;
+  if (enroque.includes("q")) pos.enroque |= 8;
+  if (ep && ep !== "-") pos.ep = (8 - +ep[1]) * 16 + (ep.charCodeAt(0) - 97);
+  return pos;
+}
+
+function aFen(pos){
+  let tab = "";
+  for (let f = 0; f < 8; f++){
+    let hueco = 0;
+    for (let c = 0; c < 8; c++){
+      const p = pos.t[f * 16 + c];
+      if (!p){ hueco++; continue; }
+      if (hueco){ tab += hueco; hueco = 0; }
+      const l = " pnbrqk"[tipo(p)];
+      tab += colorDe(p) === BLANCO ? l.toUpperCase() : l;
+    }
+    if (hueco) tab += hueco;
+    if (f < 7) tab += "/";
+  }
+  let e = "";
+  if (pos.enroque & 1) e += "K";
+  if (pos.enroque & 2) e += "Q";
+  if (pos.enroque & 4) e += "k";
+  if (pos.enroque & 8) e += "q";
+  return [tab, pos.turno === BLANCO ? "w" : "b", e || "-",
+          pos.ep >= 0 ? nombre(pos.ep) : "-", pos.medio, pos.plena].join(" ");
+}
+
+const nombre = s => "abcdefgh"[colDe(s)] + (8 - filaDe(s));
+const desdeNombre = n => (8 - +n[1]) * 16 + (n.charCodeAt(0) - 97);
+
+/* Clave para la triple repeticion: la posicion sin los contadores. */
+const clave = pos => aFen(pos).split(" ").slice(0, 4).join(" ");
+
+function atacado(pos, s, porColor){
+  const peon = porColor === BLANCO ? [15, 17] : [-15, -17];
+  for (const d of peon){ const q = s + d; if (dentro(q) && pos.t[q] === (PEON | porColor)) return true; }
+  for (const d of SALTOS){ const q = s + d; if (dentro(q) && pos.t[q] === (CABALLO | porColor)) return true; }
+  for (const d of OCHO){ const q = s + d; if (dentro(q) && pos.t[q] === (REY | porColor)) return true; }
+  for (const d of DIAG){
+    let q = s + d;
+    while (dentro(q)){
+      const p = pos.t[q];
+      if (p){ if (colorDe(p) === porColor && (tipo(p) === ALFIL || tipo(p) === DAMA)) return true; break; }
+      q += d;
+    }
+  }
+  for (const d of RECT){
+    let q = s + d;
+    while (dentro(q)){
+      const p = pos.t[q];
+      if (p){ if (colorDe(p) === porColor && (tipo(p) === TORRE || tipo(p) === DAMA)) return true; break; }
+      q += d;
+    }
+  }
+  return false;
+}
+
+const enJaque = pos => atacado(pos, pos.reyes[pos.turno === BLANCO ? 0 : 1], rival(pos.turno));
+
+function generar(pos, soloComer){
+  const ms = [], c = pos.turno, r = rival(c);
+  const dir = c === BLANCO ? -16 : 16;
+  const filaSalida = c === BLANCO ? 6 : 1;
+  const filaCorona = c === BLANCO ? 0 : 7;
+
+  const meter = (de, a, f) => {
+    if (filaDe(a) === filaCorona){
+      ms.push(armar(de, a, DAMA, f | F_CORONA));
+      ms.push(armar(de, a, TORRE, f | F_CORONA));
+      ms.push(armar(de, a, ALFIL, f | F_CORONA));
+      ms.push(armar(de, a, CABALLO, f | F_CORONA));
+    } else ms.push(armar(de, a, 0, f));
+  };
+
+  for (let fi = 0; fi < 8; fi++) for (let co = 0; co < 8; co++){
+    const s = fi * 16 + co, p = pos.t[s];
+    if (!p || colorDe(p) !== c) continue;
+    const t = tipo(p);
+
+    if (t === PEON){
+      const uno = s + dir;
+      if (!soloComer && dentro(uno) && !pos.t[uno]){
+        meter(s, uno, 0);
+        const dos = s + dir * 2;
+        if (fi === filaSalida && !pos.t[dos]) ms.push(armar(s, dos, 0, F_DOBLE));
+      }
+      for (const d of [dir - 1, dir + 1]){
+        const a = s + d;
+        if (!dentro(a)) continue;
+        if (pos.t[a]){ if (colorDe(pos.t[a]) === r) meter(s, a, F_COME); }
+        else if (a === pos.ep) ms.push(armar(s, a, 0, F_COME | F_PASO));
+      }
+      continue;
+    }
+
+    if (t === CABALLO || t === REY){
+      for (const d of (t === CABALLO ? SALTOS : OCHO)){
+        const a = s + d;
+        if (!dentro(a)) continue;
+        const q = pos.t[a];
+        if (q){ if (colorDe(q) === r) ms.push(armar(s, a, 0, F_COME)); }
+        else if (!soloComer) ms.push(armar(s, a, 0, 0));
+      }
+    } else {
+      const dirs = t === ALFIL ? DIAG : t === TORRE ? RECT : DIAG.concat(RECT);
+      for (const d of dirs){
+        let a = s + d;
+        while (dentro(a)){
+          const q = pos.t[a];
+          if (q){ if (colorDe(q) === r) ms.push(armar(s, a, 0, F_COME)); break; }
+          if (!soloComer) ms.push(armar(s, a, 0, 0));
+          a += d;
+        }
+      }
+    }
+  }
+
+  if (!soloComer){
+    const base = c === BLANCO ? 112 : 0;
+    const corto = c === BLANCO ? 1 : 4, largo = c === BLANCO ? 2 : 8;
+    if ((pos.enroque & corto) && !pos.t[base + 5] && !pos.t[base + 6]
+        && !atacado(pos, base + 4, r) && !atacado(pos, base + 5, r) && !atacado(pos, base + 6, r))
+      ms.push(armar(base + 4, base + 6, 0, F_ENROQUE));
+    if ((pos.enroque & largo) && !pos.t[base + 1] && !pos.t[base + 2] && !pos.t[base + 3]
+        && !atacado(pos, base + 4, r) && !atacado(pos, base + 3, r) && !atacado(pos, base + 2, r))
+      ms.push(armar(base + 4, base + 2, 0, F_ENROQUE));
+  }
+  return ms;
+}
+
+function hacer(pos, mv){
+  const de = mvDe(mv), a = mvA(mv), f = mvF(mv);
+  const pieza = pos.t[de], c = colorDe(pieza);
+  const u = { mv, cap: 0, capSq: -1, enroque: pos.enroque, ep: pos.ep, medio: pos.medio };
+
+  if (f & F_PASO){
+    const cs = a + (c === BLANCO ? 16 : -16);
+    u.cap = pos.t[cs]; u.capSq = cs; pos.t[cs] = VACIO;
+  } else if (pos.t[a]){
+    u.cap = pos.t[a]; u.capSq = a;
+  }
+
+  pos.t[a] = (f & F_CORONA) ? (mvCorona(mv) | c) : pieza;
+  pos.t[de] = VACIO;
+
+  if (tipo(pieza) === REY){
+    pos.reyes[c === BLANCO ? 0 : 1] = a;
+    if (f & F_ENROQUE){
+      const corto = colDe(a) === 6;
+      const td = corto ? a + 1 : a - 2, ta = corto ? a - 1 : a + 1;
+      pos.t[ta] = pos.t[td]; pos.t[td] = VACIO;
+    }
+  }
+
+  pos.enroque &= MASCARA[de] & MASCARA[a];
+  pos.ep = (f & F_DOBLE) ? de + (c === BLANCO ? -16 : 16) : -1;
+  pos.medio = (tipo(pieza) === PEON || u.cap) ? 0 : pos.medio + 1;
+  if (c === NEGRO) pos.plena++;
+  pos.turno = rival(c);
+  pos.pila.push(u);
+}
+
+function deshacer(pos){
+  const u = pos.pila.pop();
+  const mv = u.mv, de = mvDe(mv), a = mvA(mv), f = mvF(mv);
+  const c = pos.turno === BLANCO ? NEGRO : BLANCO;
+
+  const pieza = (f & F_CORONA) ? (PEON | c) : pos.t[a];
+  pos.t[de] = pieza;
+  pos.t[a] = VACIO;
+  if (u.cap) pos.t[u.capSq] = u.cap;
+
+  if (tipo(pieza) === REY){
+    pos.reyes[c === BLANCO ? 0 : 1] = de;
+    if (f & F_ENROQUE){
+      const corto = colDe(a) === 6;
+      const td = corto ? a + 1 : a - 2, ta = corto ? a - 1 : a + 1;
+      pos.t[td] = pos.t[ta]; pos.t[ta] = VACIO;
+    }
+  }
+
+  pos.enroque = u.enroque; pos.ep = u.ep; pos.medio = u.medio;
+  if (c === NEGRO) pos.plena--;
+  pos.turno = c;
+}
+
+function legales(pos){
+  const res = [], yo = pos.turno, i = yo === BLANCO ? 0 : 1;
+  for (const mv of generar(pos, false)){
+    hacer(pos, mv);
+    if (!atacado(pos, pos.reyes[i], rival(yo))) res.push(mv);
+    deshacer(pos);
+  }
+  return res;
+}
+
+/* Material que queda: si no alcanza para dar mate, es tablas. */
+function materialPobre(pos){
+  const bandos = { 8: [], 16: [] };
+  for (let f = 0; f < 8; f++) for (let c = 0; c < 8; c++){
+    const p = pos.t[f * 16 + c];
+    if (!p || tipo(p) === REY) continue;
+    if (tipo(p) === PEON || tipo(p) === TORRE || tipo(p) === DAMA) return false;
+    bandos[colorDe(p)].push({ t: tipo(p), claro: (f + c) % 2 === 0 });
+  }
+  const b = bandos[8], n = bandos[16];
+  if (!b.length && !n.length) return true;                       // rey contra rey
+  if (b.length + n.length === 1) return true;                    // rey y menor
+  if (b.length === 1 && n.length === 1
+      && b[0].t === ALFIL && n[0].t === ALFIL
+      && b[0].claro === n[0].claro) return true;                 // alfiles del mismo color
+  return false;
+}
+
+function estado(pos, repes){
+  const ms = legales(pos);
+  if (!ms.length) return enJaque(pos) ? "mate" : "ahogado";
+  if (pos.medio >= 100) return "cincuenta";
+  if (repes >= 3) return "repeticion";
+  if (materialPobre(pos)) return "material";
+  return "sigue";
+}
+
+/* ---------------------------------------------------------------- notacion */
+function san(pos, mv, lista){
+  const f = mvF(mv), de = mvDe(mv), a = mvA(mv);
+  const p = pos.t[de], t = tipo(p);
+  let s;
+
+  if (f & F_ENROQUE){
+    s = colDe(a) === 6 ? "O-O" : "O-O-O";
+  } else if (t === PEON){
+    s = (f & F_COME) ? "abcdefgh"[colDe(de)] + "x" + nombre(a) : nombre(a);
+    if (f & F_CORONA) s += "=" + SIGLAS[mvCorona(mv)];
+  } else {
+    /* Desambiguacion: si otra pieza igual llega a la misma casilla hay que
+       aclarar de donde sale. Primero la columna, si no alcanza la fila. */
+    let mismaCol = false, mismaFila = false, hayOtra = false;
+    for (const o of lista){
+      if (o === mv) continue;
+      if (mvA(o) !== a) continue;
+      const q = pos.t[mvDe(o)];
+      if (!q || tipo(q) !== t || colorDe(q) !== colorDe(p)) continue;
+      hayOtra = true;
+      if (colDe(mvDe(o)) === colDe(de)) mismaCol = true;
+      if (filaDe(mvDe(o)) === filaDe(de)) mismaFila = true;
+    }
+    let extra = "";
+    if (hayOtra) extra = !mismaCol ? "abcdefgh"[colDe(de)]
+                       : !mismaFila ? String(8 - filaDe(de))
+                       : nombre(de);
+    s = SIGLAS[t] + extra + ((f & F_COME) ? "x" : "") + nombre(a);
+  }
+
+  hacer(pos, mv);
+  if (enJaque(pos)) s += legales(pos).length ? "+" : "#";
+  deshacer(pos);
+  return s;
+}
+
+/* ------------------------------------------------------------- evaluacion */
+const VALOR = [0, 100, 320, 330, 500, 900, 0];
+
+const T_PEON = [
+    0,  0,  0,  0,  0,  0,  0,  0,
+   50, 50, 50, 50, 50, 50, 50, 50,
+   10, 10, 20, 30, 30, 20, 10, 10,
+    5,  5, 10, 25, 25, 10,  5,  5,
+    0,  0,  0, 20, 20,  0,  0,  0,
+    5, -5,-10,  0,  0,-10, -5,  5,
+    5, 10, 10,-20,-20, 10, 10,  5,
+    0,  0,  0,  0,  0,  0,  0,  0];
+const T_CABALLO = [
+  -50,-40,-30,-30,-30,-30,-40,-50,
+  -40,-20,  0,  0,  0,  0,-20,-40,
+  -30,  0, 10, 15, 15, 10,  0,-30,
+  -30,  5, 15, 20, 20, 15,  5,-30,
+  -30,  0, 15, 20, 20, 15,  0,-30,
+  -30,  5, 10, 15, 15, 10,  5,-30,
+  -40,-20,  0,  5,  5,  0,-20,-40,
+  -50,-40,-30,-30,-30,-30,-40,-50];
+const T_ALFIL = [
+  -20,-10,-10,-10,-10,-10,-10,-20,
+  -10,  0,  0,  0,  0,  0,  0,-10,
+  -10,  0,  5, 10, 10,  5,  0,-10,
+  -10,  5,  5, 10, 10,  5,  5,-10,
+  -10,  0, 10, 10, 10, 10,  0,-10,
+  -10, 10, 10, 10, 10, 10, 10,-10,
+  -10,  5,  0,  0,  0,  0,  5,-10,
+  -20,-10,-10,-10,-10,-10,-10,-20];
+const T_TORRE = [
+    0,  0,  0,  0,  0,  0,  0,  0,
+    5, 10, 10, 10, 10, 10, 10,  5,
+   -5,  0,  0,  0,  0,  0,  0, -5,
+   -5,  0,  0,  0,  0,  0,  0, -5,
+   -5,  0,  0,  0,  0,  0,  0, -5,
+   -5,  0,  0,  0,  0,  0,  0, -5,
+   -5,  0,  0,  0,  0,  0,  0, -5,
+    0,  0,  0,  5,  5,  0,  0,  0];
+const T_DAMA = [
+  -20,-10,-10, -5, -5,-10,-10,-20,
+  -10,  0,  0,  0,  0,  0,  0,-10,
+  -10,  0,  5,  5,  5,  5,  0,-10,
+   -5,  0,  5,  5,  5,  5,  0, -5,
+    0,  0,  5,  5,  5,  5,  0, -5,
+  -10,  5,  5,  5,  5,  5,  0,-10,
+  -10,  0,  5,  0,  0,  0,  0,-10,
+  -20,-10,-10, -5, -5,-10,-10,-20];
+const T_REY_MEDIO = [
+  -30,-40,-40,-50,-50,-40,-40,-30,
+  -30,-40,-40,-50,-50,-40,-40,-30,
+  -30,-40,-40,-50,-50,-40,-40,-30,
+  -30,-40,-40,-50,-50,-40,-40,-30,
+  -20,-30,-30,-40,-40,-30,-30,-20,
+  -10,-20,-20,-20,-20,-20,-20,-10,
+   20, 20,  0,  0,  0,  0, 20, 20,
+   20, 30, 10,  0,  0, 10, 30, 20];
+const T_REY_FINAL = [
+  -50,-40,-30,-20,-20,-30,-40,-50,
+  -30,-20,-10,  0,  0,-10,-20,-30,
+  -30,-10, 20, 30, 30, 20,-10,-30,
+  -30,-10, 30, 40, 40, 30,-10,-30,
+  -30,-10, 30, 40, 40, 30,-10,-30,
+  -30,-10, 20, 30, 30, 20,-10,-30,
+  -30,-30,  0,  0,  0,  0,-30,-30,
+  -50,-30,-30,-30,-30,-30,-30,-50];
+const TABLAS = [null, T_PEON, T_CABALLO, T_ALFIL, T_TORRE, T_DAMA, null];
+
+/* Devuelve la evaluacion en centipeones desde el punto de vista del que mueve. */
+function evaluar(pos){
+  let mat = 0, pos_ = 0, faseB = 0, faseN = 0;
+  const peones = { 8: new Int8Array(8), 16: new Int8Array(8) };
+  const alfiles = { 8: 0, 16: 0 };
+
+  for (let f = 0; f < 8; f++) for (let c = 0; c < 8; c++){
+    const s = f * 16 + c, p = pos.t[s];
+    if (!p) continue;
+    const t = tipo(p), col = colorDe(p), signo = col === BLANCO ? 1 : -1;
+    const i = col === BLANCO ? f * 8 + c : (7 - f) * 8 + c;
+
+    mat += signo * VALOR[t];
+    if (t !== REY) pos_ += signo * TABLAS[t][i];
+    if (t === PEON) peones[col][c]++;
+    if (t === ALFIL) alfiles[col]++;
+    if (t !== PEON && t !== REY) (col === BLANCO ? faseB += VALOR[t] : faseN += VALOR[t]);
+  }
+
+  /* Fase: con poco material pesado el rey deja de esconderse y sale a pelear. */
+  const fase = Math.min(1, (faseB + faseN) / 6600);
+  for (const col of [BLANCO, NEGRO]){
+    const s = pos.reyes[col === BLANCO ? 0 : 1];
+    if (s < 0) continue;
+    const f = filaDe(s), c = colDe(s);
+    const i = col === BLANCO ? f * 8 + c : (7 - f) * 8 + c;
+    const v = T_REY_MEDIO[i] * fase + T_REY_FINAL[i] * (1 - fase);
+    pos_ += (col === BLANCO ? 1 : -1) * v;
+  }
+
+  /* Estructura de peones: doblados e aislados restan, pasados suman. */
+  let estruct = 0;
+  for (const col of [BLANCO, NEGRO]){
+    const signo = col === BLANCO ? 1 : -1, mios = peones[col];
+    for (let c = 0; c < 8; c++){
+      if (!mios[c]) continue;
+      if (mios[c] > 1) estruct -= signo * 14 * (mios[c] - 1);
+      const izq = c > 0 ? mios[c - 1] : 0, der = c < 7 ? mios[c + 1] : 0;
+      if (!izq && !der) estruct -= signo * 16;
+    }
+  }
+  if (alfiles[BLANCO] >= 2) estruct += 28;
+  if (alfiles[NEGRO] >= 2) estruct -= 28;
+
+  const total = mat + pos_ + estruct;
+  return pos.turno === BLANCO ? total : -total;
+}
+
+/* -------------------------------------------------------------- busqueda */
+const MATE = 30000, INF = 99999;
+
+function crearBuscador(){
+  const matones = [];            // killers: 2 por nivel
+  const historia = new Int32Array(128 * 128);
+  let nodos = 0, limite = 0, corte = false;
+
+  /* MVV-LVA: comerse lo caro con lo barato va primero. */
+  function puntaje(pos, mv, prof, mejorTT){
+    if (mv === mejorTT) return 1e7;
+    const f = mvF(mv);
+    if (f & F_CORONA) return 9e6 + VALOR[mvCorona(mv)];
+    if (f & F_COME){
+      const victima = (f & F_PASO) ? PEON : tipo(pos.t[mvA(mv)]);
+      const agresor = tipo(pos.t[mvDe(mv)]);
+      return 8e6 + VALOR[victima] * 10 - VALOR[agresor];
+    }
+    const k = matones[prof];
+    if (k){ if (mv === k[0]) return 7e6; if (mv === k[1]) return 6.9e6; }
+    return historia[mvDe(mv) * 128 + mvA(mv)];
+  }
+
+  function ordenar(pos, ms, prof, mejorTT){
+    const p = ms.map(m => [puntaje(pos, m, prof, mejorTT), m]);
+    p.sort((a, b) => b[0] - a[0]);
+    return p.map(x => x[1]);
+  }
+
+  /* Busqueda de reposo: no evaluar en medio de un tiroteo de capturas.
+     Con tope de hondura, si no una cadena larga de cambios no termina mas. */
+  function reposo(pos, alfa, beta, hondo){
+    nodos++;
+    const quieto = evaluar(pos);
+    if (quieto >= beta) return beta;
+    if (hondo > 8) return quieto;
+    if (quieto > alfa) alfa = quieto;
+
+    const yo = pos.turno, i = yo === BLANCO ? 0 : 1;
+    for (const mv of ordenar(pos, generar(pos, true), 0, 0)){
+      hacer(pos, mv);
+      if (atacado(pos, pos.reyes[i], rival(yo))){ deshacer(pos); continue; }
+      const v = -reposo(pos, -beta, -alfa, hondo + 1);
+      deshacer(pos);
+      if (v >= beta) return beta;
+      if (v > alfa) alfa = v;
+    }
+    return alfa;
+  }
+
+  function negamax(pos, prof, alfa, beta, ply){
+    if (corte) return 0;
+    if ((nodos & 1023) === 0 && limite && Date.now() > limite){ corte = true; return 0; }
+    if (pos.medio >= 100) return 0;
+    if (prof <= 0) return reposo(pos, alfa, beta, 0);
+    nodos++;
+
+    const yo = pos.turno, i = yo === BLANCO ? 0 : 1;
+    const jaque = atacado(pos, pos.reyes[i], rival(yo));
+    /* Si me dan jaque conviene mirar una jugada mas, pero con tope: en un
+       jaque perpetuo la extension sola no vuelve nunca. */
+    if (jaque && ply < 16) prof++;
+
+    let hubo = false, mejor = -INF;
+    for (const mv of ordenar(pos, generar(pos, false), ply, 0)){
+      hacer(pos, mv);
+      if (atacado(pos, pos.reyes[i], rival(yo))){ deshacer(pos); continue; }
+      hubo = true;
+      const v = -negamax(pos, prof - 1, -beta, -alfa, ply + 1);
+      deshacer(pos);
+      if (corte) return 0;
+
+      if (v > mejor) mejor = v;
+      if (v > alfa){
+        alfa = v;
+        if (!(mvF(mv) & F_COME)) historia[mvDe(mv) * 128 + mvA(mv)] += prof * prof;
+      }
+      if (alfa >= beta){
+        if (!(mvF(mv) & F_COME)){
+          const k = matones[ply] || (matones[ply] = [0, 0]);
+          if (k[0] !== mv){ k[1] = k[0]; k[0] = mv; }
+        }
+        return beta;
+      }
+    }
+
+    if (!hubo) return jaque ? -MATE + ply : 0;   // mate o ahogado
+    return mejor;
+  }
+
+  /* Devuelve todas las jugadas de la raiz con su nota, de mejor a peor. */
+  function raiz(pos, prof, repetidas){
+    const yo = pos.turno, i = yo === BLANCO ? 0 : 1;
+    const out = [];
+    for (const mv of ordenar(pos, generar(pos, false), 0, 0)){
+      hacer(pos, mv);
+      if (atacado(pos, pos.reyes[i], rival(yo))){ deshacer(pos); continue; }
+      /* Si la jugada mete la posicion en una repeticion, vale tablas: asi el
+         motor no se ahoga solo cuando va ganando. */
+      const v = repetidas.has(clave(pos)) ? 0 : -negamax(pos, prof - 1, -INF, INF, 1);
+      deshacer(pos);
+      if (corte) break;
+      out.push([v, mv]);
+    }
+    out.sort((a, b) => b[0] - a[0]);
+    return out;
+  }
+
+  return function buscar(pos, op){
+    const profMax = op.prof || 4, ms = op.ms || 0, azar = op.azar || 0;
+    const repetidas = new Set(op.repetidas || []);
+    nodos = 0; corte = false; limite = 0;
+    matones.length = 0; historia.fill(0);
+
+    /* La hondura 1 se termina siempre, aunque se pase del tiempo: sin eso una
+       maquina lenta puede quedarse sin ninguna jugada para devolver. */
+    let lista = raiz(pos, 1, repetidas), hecha = 1;
+    if (!lista.length) return null;
+
+    limite = ms ? Date.now() + ms : 0;
+    for (let d = 2; d <= profMax; d++){
+      if (Math.abs(lista[0][0]) > MATE - 100) break;    // ya hay mate, no seguir
+      if (limite && Date.now() > limite) break;
+      const r = raiz(pos, d, repetidas);
+      if (corte || !r.length) break;                    // iteracion a medias: se tira
+      lista = r; hecha = d;
+    }
+
+    /* La dificultad baja no es "buscar menos", es aceptar jugadas peores:
+       el motor ve el error y a veces lo juega igual. Asi se puede ganar. */
+    let elegida = lista[0][1];
+    if (azar > 0){
+      const techo = lista[0][0] - azar;
+      const pool = lista.filter(x => x[0] >= techo);
+      elegida = pool[Math.floor(Math.random() * pool.length)][1];
+    }
+    return { mv: elegida, valor: lista[0][0], prof: hecha, nodos, lista };
+  };
+}
+
+const NIVELES = {
+  facil:   { prof: 2,  ms: 400,  azar: 150 },
+  normal:  { prof: 4,  ms: 1400, azar: 45  },
+  dificil: { prof: 24, ms: 2600, azar: 0   },
+};
+</script>
+
+<script>
+/* ============================================================================
+   INTERFAZ. El nucleo de arriba ya sabe de ajedrez; esto solo lo dibuja.
+   ========================================================================== */
+const VERSION = "v1.0.0";
+const K_ESTADO = "xchess.partida";
+const K_TEMA   = "xchess.tema";
+
+const $ = id => document.getElementById(id);
+const elTablero = $("tablero"), elCasillas = $("casillas"), elMarcas = $("marcas"), elPiezas = $("piezas");
+const elMesa = $("mesa"), elZona = document.querySelector(".zona");
+
+/* El tablero es el cuadrado mas grande que entra en el hueco libre, una vez
+   descontadas las dos fichas de jugador que van pegadas arriba y abajo. */
+function redimensionar(){
+  /* clientWidth incluye el padding, asi que hay que descontarlo a mano:
+     si no, el tablero se sale por el costado derecho. */
+  const cs = getComputedStyle(elZona);
+  const ancho = elZona.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const alto  = elZona.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
+  const fichas = 2 * 34 + 2 * 7;           // las dos fichas de jugador y los gaps
+  const lado = Math.max(220, Math.floor(Math.min(ancho, alto - fichas)));
+  elMesa.style.width = lado + "px";
+}
+addEventListener("resize", redimensionar);
+addEventListener("orientationchange", () => setTimeout(redimensionar, 120));
+
+/* ------------------------------------------------------------ estado vivo */
+let pos, historial, conf, girado, sel, destinos, piezasEn, idPieza, motor, pensando, coronaPend, fin;
+
+conf = {
+  modo: "maquina", nivel: "normal", color: "b",
+  girar: true, pistas: true,
+};
+
+/* ------------------------------------------------------------- utilidades */
+function avisar(txt){
+  const a = $("aviso");
+  a.textContent = txt; a.classList.add("ver");
+  clearTimeout(avisar.t);
+  avisar.t = setTimeout(() => a.classList.remove("ver"), 1600);
+}
+
+function vibrar(ms){ if (navigator.vibrate) try { navigator.vibrate(ms); } catch(e){} }
+
+/* Cuantas veces se repitio la posicion actual en toda la partida. */
+function repeticiones(){
+  const c = clave(pos);
+  let n = 0;
+  for (const k of historial.claves) if (k === c) n++;
+  return n;
+}
+function clavesRepetidas(){
+  const cuenta = new Map(), res = [];
+  for (const k of historial.claves) cuenta.set(k, (cuenta.get(k) || 0) + 1);
+  for (const [k, n] of cuenta) if (n >= 2) res.push(k);
+  return res;
+}
+
+/* conf.color es lo que eligio el usuario ("azar" incluido);
+   conf.colorReal es el color que finalmente le toco en esta partida. */
+const miColor = () => (conf.colorReal || conf.color) === "n" ? NEGRO : BLANCO;
+const soyHumano = c => conf.modo === "dos" || c === miColor();
+
+/* ------------------------------------------------------------ dibujar SVG */
+function svgPieza(p, tam){
+  const t = tipo(p), blanca = colorDe(p) === BLANCO;
+  const g = ["", "peon", "caballo", "alfil", "torre", "dama", "rey"][t];
+  const relleno = blanca ? "var(--pieza-b)" : "var(--pieza-n)";
+  const borde   = blanca ? "var(--pieza-b-borde)" : "var(--pieza-n-borde)";
+  /* El detalle (ojo del caballo, ranura del alfil) va con el color del borde
+     en las blancas y aclarado en las negras, si no la pieza negra es un borron. */
+  const detalle = blanca ? borde : "rgba(240,230,210,.42)";
+  const extra = ["", "", "caballo", "alfil", "torre", "", "rey"][t];
+  return `<svg viewBox="0 0 45 45"${tam ? ` width="${tam}" height="${tam}"` : ""}>
+    <g fill="${relleno}" stroke="${borde}" stroke-width="1.5" stroke-linejoin="round"><use href="#g-${g}"/></g>
+    ${extra ? `<g fill="${detalle}" stroke="${detalle}" stroke-width="1.35"><use href="#d-${extra}"/></g>` : ""}
+  </svg>`;
+}
+
+/* Fila y columna en pantalla, contemplando el tablero dado vuelta. */
+const verFila = s => girado ? 7 - filaDe(s) : filaDe(s);
+const verCol  = s => girado ? 7 - colDe(s)  : colDe(s);
+
+function armarCasillas(){
+  elCasillas.innerHTML = "";
+  elMarcas.innerHTML = "";
+  for (let vf = 0; vf < 8; vf++) for (let vc = 0; vc < 8; vc++){
+    const f = girado ? 7 - vf : vf, c = girado ? 7 - vc : vc;
+    const s = f * 16 + c;
+    const d = document.createElement("div");
+    d.className = "cas " + ((f + c) % 2 === 0 ? "c" : "o");
+    d.dataset.s = s;
+    if (vc === 0) d.insertAdjacentHTML("beforeend", `<span class="coord f">${8 - f}</span>`);
+    if (vf === 7) d.insertAdjacentHTML("beforeend", `<span class="coord c">${"abcdefgh"[c]}</span>`);
+    elCasillas.appendChild(d);
+    const m = document.createElement("div");
+    m.className = "mk"; m.dataset.s = s;
+    elMarcas.appendChild(m);
+  }
+}
+
+function colocar(el, s){
+  el.style.transform = `translate(${verCol(s) * 100}%, ${verFila(s) * 100}%)`;
+}
+
+/* Rehace las piezas de cero, sin animacion. Para cargar, deshacer o girar. */
+function sincronizar(){
+  elPiezas.innerHTML = "";
+  piezasEn = new Map();
+  idPieza = 0;
+  elTablero.classList.add("quieto");
+  for (let f = 0; f < 8; f++) for (let c = 0; c < 8; c++){
+    const s = f * 16 + c, p = pos.t[s];
+    if (!p) continue;
+    const el = document.createElement("div");
+    el.className = "pz";
+    el.dataset.id = ++idPieza;
+    el.innerHTML = svgPieza(p);
+    colocar(el, s);
+    elPiezas.appendChild(el);
+    piezasEn.set(s, el);
+  }
+  /* Un frame quieto para que el navegador no anime la colocacion inicial. */
+  requestAnimationFrame(() => requestAnimationFrame(() => elTablero.classList.remove("quieto")));
+}
+
+/* Mueve los elementos siguiendo la jugada, para que la pieza se deslice. */
+function animar(mv, piezaMovida){
+  const de = mvDe(mv), a = mvA(mv), f = mvF(mv);
+  const el = piezasEn.get(de);
+  if (!el){ sincronizar(); return; }
+
+  const comidaSq = (f & F_PASO) ? a + (colorDe(piezaMovida) === BLANCO ? 16 : -16)
+                 : (f & F_COME) ? a : -1;
+  if (comidaSq >= 0){
+    const vic = piezasEn.get(comidaSq);
+    if (vic){ vic.classList.add("sale"); setTimeout(() => vic.remove(), 180); piezasEn.delete(comidaSq); }
+  }
+
+  piezasEn.delete(de);
+  piezasEn.set(a, el);
+  el.classList.add("alza");
+  colocar(el, a);
+  setTimeout(() => el.classList.remove("alza"), 220);
+
+  if (f & F_CORONA){
+    setTimeout(() => { el.innerHTML = svgPieza(mvCorona(mv) | colorDe(piezaMovida)); }, 150);
+  }
+  if (f & F_ENROQUE){
+    const corto = colDe(a) === 6;
+    const td = corto ? a + 1 : a - 2, ta = corto ? a - 1 : a + 1;
+    const torre = piezasEn.get(td);
+    if (torre){ piezasEn.delete(td); piezasEn.set(ta, torre); colocar(torre, ta); }
+  }
+}
+
+/* ------------------------------------------------------------- marcas y UI */
+function pintarMarcas(){
+  const ult = historial.mvs.length ? historial.mvs[historial.mvs.length - 1] : 0;
+  const ultDe = ult ? mvDe(ult) : -1, ultA = ult ? mvA(ult) : -1;
+  const reySq = enJaque(pos) ? pos.reyes[pos.turno === BLANCO ? 0 : 1] : -1;
+
+  for (const m of elMarcas.children){
+    const s = +m.dataset.s;
+    let cl = "mk";
+    if (s === ultDe || s === ultA) cl += " ult";
+    if (s === reySq) cl += " jaque";
+    if (s === sel) cl += " sel";
+    if (conf.pistas && destinos.has(s)) cl += pos.t[s] || destinos.get(s).paso ? " come" : " dest";
+    m.className = cl;
+  }
+}
+
+function pintarCapturadas(){
+  /* Lo que falta respecto del juego completo es lo que se comieron. */
+  const completo = { 1: 8, 2: 2, 3: 2, 4: 2, 5: 1 };
+  const vivas = { 8: {}, 16: {} }, valor = { 8: 0, 16: 0 };
+  for (let f = 0; f < 8; f++) for (let c = 0; c < 8; c++){
+    const p = pos.t[f * 16 + c];
+    if (!p) continue;
+    const t = tipo(p);
+    vivas[colorDe(p)][t] = (vivas[colorDe(p)][t] || 0) + 1;
+    valor[colorDe(p)] += VALOR[t];
+  }
+
+  const pinta = (elCap, elVent, colorPropio) => {
+    let html = "";
+    for (const t of [5, 4, 3, 2, 1]){
+      const faltan = completo[t] - (vivas[colorPropio][t] || 0);
+      /* Las coronaciones pueden dar mas piezas de las que habia: no restar. */
+      for (let i = 0; i < Math.max(0, faltan); i++) html += svgPieza(t | colorPropio);
+    }
+    elCap.innerHTML = html;
+    const dif = valor[rival(colorPropio)] - valor[colorPropio];
+    elVent.textContent = dif > 0 ? "+" + dif / 100 : "";
+  };
+
+  const arribaEs = girado ? BLANCO : NEGRO;
+  pinta($("capArriba"), $("ventArriba"), arribaEs);
+  pinta($("capAbajo"),  $("ventAbajo"),  rival(arribaEs));
+
+  const nomDe = c => {
+    if (conf.modo === "dos") return c === BLANCO ? "Blancas" : "Negras";
+    return c === miColor() ? "Vos" : "Maquina";
+  };
+  $("jugArriba").querySelector(".nom").textContent = nomDe(arribaEs);
+  $("jugAbajo").querySelector(".nom").textContent  = nomDe(rival(arribaEs));
+  $("jugArriba").classList.toggle("activo", pos.turno === arribaEs && !fin);
+  $("jugAbajo").classList.toggle("activo",  pos.turno !== arribaEs && !fin);
+
+  if (pensando){
+    const lado = pos.turno === arribaEs ? $("jugArriba") : $("jugAbajo");
+    lado.querySelector(".nom").insertAdjacentHTML("beforeend", '<span class="pensando"></span>');
+  }
+}
+
+function pintarJugadas(){
+  const el = $("jugadas");
+  if (!historial.san.length){
+    el.innerHTML = '<div class="vacio">Sin jugadas todavia.</div>';
+    return;
+  }
+  let html = "";
+  for (let i = 0; i < historial.san.length; i++){
+    const n = Math.floor(i / 2) + 1, blancas = i % 2 === 0;
+    const ahora = i === historial.san.length - 1 ? " ahora" : "";
+    html += `<div class="jd${ahora}">${blancas ? `<span class="n">${n}.</span>` : ""}${historial.san[i]}</div>`;
+  }
+  el.innerHTML = html;
+  el.scrollLeft = el.scrollWidth;
+}
+
+function pintarTodo(){
+  pintarMarcas();
+  pintarCapturadas();
+  pintarJugadas();
+  $("btDeshacer").disabled = !historial.mvs.length || pensando;
+}
+
+/* ------------------------------------------------------------ jugar el turno */
+function turnoSiguiente(){
+  guardar();
+  const repes = repeticiones();
+  const est = estado(pos, repes);
+  if (est !== "sigue"){ terminar(est); return; }
+  if (!soyHumano(pos.turno)) setTimeout(pedirMaquina, 240);
+}
+
+function aplicar(mv){
+  const piezaMovida = pos.t[mvDe(mv)];
+  const texto = san(pos, mv, legales(pos));
+
+  historial.mvs.push(mv);
+  historial.san.push(texto);
+  animar(mv, piezaMovida);
+  hacer(pos, mv);
+  historial.claves.push(clave(pos));
+
+  sel = -1; destinos = new Map();
+  vibrar(texto.includes("x") ? 18 : 10);
+  pintarTodo();
+  turnoSiguiente();
+  /* En dos jugadores el tablero se da vuelta solo, una vez que la pieza
+     termino de deslizarse. */
+  if (conf.modo === "dos" && conf.girar && !fin) setTimeout(girarSiHaceFalta, 260);
+}
+
+function girarSiHaceFalta(){
+  const deberia = pos.turno === NEGRO;
+  if (deberia === girado) return;
+  girado = deberia;
+  armarCasillas();
+  sincronizar();
+  pintarTodo();
+}
+
+function tocar(s){
+  if (fin || pensando || coronaPend) return;
+  if (!soyHumano(pos.turno)) return;
+
+  if (destinos.has(s)){
+    const opciones = destinos.get(s).mvs;
+    if (opciones.length > 1){ pedirCorona(opciones); return; }
+    aplicar(opciones[0]);
+    return;
+  }
+
+  const p = pos.t[s];
+  if (p && colorDe(p) === pos.turno){
+    if (sel === s){ sel = -1; destinos = new Map(); pintarMarcas(); return; }
+    sel = s;
+    destinos = new Map();
+    for (const mv of legales(pos)){
+      if (mvDe(mv) !== s) continue;
+      const a = mvA(mv);
+      if (!destinos.has(a)) destinos.set(a, { mvs: [], paso: !!(mvF(mv) & F_PASO) });
+      destinos.get(a).mvs.push(mv);
+    }
+    pintarMarcas();
+    return;
+  }
+
+  sel = -1; destinos = new Map();
+  pintarMarcas();
+}
+
+function pedirCorona(opciones){
+  coronaPend = opciones;
+  const c = pos.turno;
+  $("opsCorona").innerHTML = [DAMA, TORRE, ALFIL, CABALLO]
+    .map(t => `<button data-t="${t}">${svgPieza(t | c)}</button>`).join("");
+  abrir("veloCorona");
+}
+
+/* ------------------------------------------------------------------ motor */
+function arrancarMotor(){
+  if (motor) motor.terminate();
+  const nucleo = document.getElementById("nucleo").textContent;
+  const pegamento = `
+    onmessage = function(e){
+      var buscar = crearBuscador();
+      var pos = desdeFen(e.data.fen);
+      var r = buscar(pos, e.data.op);
+      postMessage(r ? { mv: r.mv, valor: r.valor, prof: r.prof, nodos: r.nodos } : null);
+    };`;
+  const blob = new Blob([nucleo + pegamento], { type: "text/javascript" });
+  motor = new Worker(URL.createObjectURL(blob));
+  motor.onmessage = e => {
+    pensando = false;
+    if (!e.data){ pintarTodo(); return; }
+    /* Puede haber cambiado la partida mientras pensaba. */
+    const ms = legales(pos);
+    if (!ms.includes(e.data.mv)){ pintarTodo(); return; }
+    aplicar(e.data.mv);
+  };
+  motor.onerror = () => {
+    pensando = false;
+    avisar("El motor se cayo; jugando al azar");
+    const ms = legales(pos);
+    if (ms.length) aplicar(ms[Math.floor(Math.random() * ms.length)]);
+  };
+}
+
+function pedirMaquina(){
+  if (fin || soyHumano(pos.turno)) return;
+  pensando = true;
+  pintarTodo();
+  motor.postMessage({
+    fen: aFen(pos),
+    op: Object.assign({}, NIVELES[conf.nivel], { repetidas: clavesRepetidas() }),
+  });
+}
+
+/* ------------------------------------------------------------------- final */
+const MOTIVOS = {
+  mate:       g => `Jaque mate de las ${g}.`,
+  ahogado:    () => "Rey ahogado: no hay jugada legal y no hay jaque.",
+  cincuenta:  () => "Cincuenta jugadas sin comer ni mover un peon.",
+  repeticion: () => "La misma posicion se repitio tres veces.",
+  material:   () => "No queda material para dar mate.",
+};
+
+function terminar(est){
+  fin = est;
+  const ganador = est === "mate" ? rival(pos.turno) : 0;
+  let res, mot;
+  if (est === "mate"){
+    const nom = ganador === BLANCO ? "blancas" : "negras";
+    if (conf.modo === "maquina") res = ganador === miColor() ? "Ganaste" : "Perdiste";
+    else res = "Ganan las " + nom;
+    mot = MOTIVOS.mate(nom);
+  } else {
+    res = "Tablas";
+    mot = MOTIVOS[est]();
+  }
+  $("finRes").textContent = res;
+  $("finMot").textContent = mot;
+  pintarTodo();
+  guardar();
+  vibrar(est === "mate" ? [20, 60, 20] : 30);
+  setTimeout(() => abrir("veloFin"), 520);
+}
+
+/* ------------------------------------------------------------- persistencia */
+function guardar(){
+  try {
+    localStorage.setItem(K_ESTADO, JSON.stringify({
+      v: 1, conf, girado, fin: fin || null,
+      mvs: historial.mvs, san: historial.san,
+    }));
+  } catch(e){}
+}
+
+function cargar(){
+  let d;
+  try { d = JSON.parse(localStorage.getItem(K_ESTADO) || "null"); } catch(e){ d = null; }
+  if (!d || d.v !== 1 || !Array.isArray(d.mvs)) return false;
+  conf = Object.assign(conf, d.conf || {});
+  pos = desdeFen(INICIAL);
+  historial = { mvs: [], san: [], claves: [clave(pos)] };
+  for (let i = 0; i < d.mvs.length; i++){
+    const mv = d.mvs[i];
+    if (!legales(pos).includes(mv)) return false;      // guardado corrupto
+    hacer(pos, mv);
+    historial.mvs.push(mv);
+    historial.san.push(d.san[i] || "?");
+    historial.claves.push(clave(pos));
+  }
+  girado = !!d.girado;
+  fin = d.fin || null;
+  return true;
+}
+
+/* ---------------------------------------------------------------- arranque */
+function nueva(){
+  if (conf.modo === "maquina" && conf.color === "azar")
+    conf.colorReal = Math.random() < .5 ? "b" : "n";
+  else conf.colorReal = conf.color === "azar" ? "b" : conf.color;
+
+  pos = desdeFen(INICIAL);
+  historial = { mvs: [], san: [], claves: [clave(pos)] };
+  sel = -1; destinos = new Map(); fin = null; pensando = false; coronaPend = null;
+  girado = conf.modo === "maquina" && miColor() === NEGRO;
+  armarCasillas();
+  sincronizar();
+  pintarTodo();
+  guardar();
+  if (!soyHumano(pos.turno)) setTimeout(pedirMaquina, 420);
+}
+
+function deshacerJugada(){
+  if (pensando || !historial.mvs.length) return;
+
+  const volver = () => {
+    deshacer(pos);
+    historial.mvs.pop(); historial.san.pop(); historial.claves.pop();
+  };
+  volver();
+  /* Contra la maquina hay que volver hasta que te toque a vos: deshacer una
+     sola jugada le daria otro turno al motor y no sirve de nada. */
+  if (conf.modo === "maquina")
+    while (historial.mvs.length && !soyHumano(pos.turno)) volver();
+
+  fin = null; sel = -1; destinos = new Map();
+  cerrar("veloFin");
+  if (conf.modo === "maquina") girado = miColor() === NEGRO;
+  armarCasillas();
+  sincronizar();
+  pintarTodo();
+  guardar();
+  /* Si el motor juega con blancas, deshacer su primera jugada deja el turno
+     otra vez de su lado. */
+  if (!soyHumano(pos.turno)) setTimeout(pedirMaquina, 300);
+}
+
+/* ------------------------------------------------------------------ hojas */
+function abrir(id){ $(id).classList.add("ver"); }
+function cerrar(id){ $(id).classList.remove("ver"); }
+
+function pintarMenu(){
+  for (const el of document.querySelectorAll("[data-modo]"))
+    el.setAttribute("aria-checked", el.dataset.modo === conf.modo);
+  for (const el of document.querySelectorAll("[data-nivel]"))
+    el.setAttribute("aria-checked", el.dataset.nivel === conf.nivel);
+  for (const el of document.querySelectorAll("[data-color]"))
+    el.setAttribute("aria-checked", el.dataset.color === conf.color);
+  $("swGirar").setAttribute("aria-checked", conf.girar);
+  $("swPistas").setAttribute("aria-checked", conf.pistas);
+  $("grNivel").style.display = conf.modo === "maquina" ? "" : "none";
+  $("grColor").style.display = conf.modo === "maquina" ? "" : "none";
+  $("grGirar").style.display = conf.modo === "dos" ? "" : "none";
+  $("pieVer").textContent = "xchess " + VERSION;
+}
+
+/* -------------------------------------------------------------- eventos */
+elTablero.addEventListener("click", e => {
+  const c = e.target.closest("[data-s]");
+  if (!c) return;
+  tocar(+c.dataset.s);
+});
+
+$("btMenu").addEventListener("click", () => { pintarMenu(); abrir("veloMenu"); });
+$("btTema").addEventListener("click", () => {
+  const ahora = document.documentElement.dataset.tema;
+  const oscuroSistema = matchMedia("(prefers-color-scheme:dark)").matches;
+  const actual = ahora || (oscuroSistema ? "oscuro" : "claro");
+  const nuevo = actual === "oscuro" ? "claro" : "oscuro";
+  document.documentElement.dataset.tema = nuevo;
+  try { localStorage.setItem(K_TEMA, nuevo); } catch(e){}
+});
+
+$("btDeshacer").addEventListener("click", deshacerJugada);
+$("btGirar").addEventListener("click", () => {
+  girado = !girado;
+  armarCasillas();
+  sincronizar();
+  pintarTodo();
+  guardar();
+});
+$("btNueva").addEventListener("click", () => { pintarMenu(); abrir("veloMenu"); });
+
+for (const el of document.querySelectorAll("[data-modo]"))
+  el.addEventListener("click", () => { conf.modo = el.dataset.modo; pintarMenu(); });
+for (const el of document.querySelectorAll("[data-nivel]"))
+  el.addEventListener("click", () => { conf.nivel = el.dataset.nivel; pintarMenu(); });
+for (const el of document.querySelectorAll("[data-color]"))
+  el.addEventListener("click", () => { conf.color = el.dataset.color; pintarMenu(); });
+$("swGirar").addEventListener("click", () => { conf.girar = !conf.girar; pintarMenu(); });
+$("swPistas").addEventListener("click", () => {
+  conf.pistas = !conf.pistas; pintarMenu(); pintarMarcas(); guardar();
+});
+
+$("btSeguir").addEventListener("click", () => { cerrar("veloMenu"); guardar(); });
+$("btEmpezar").addEventListener("click", () => { cerrar("veloMenu"); nueva(); });
+$("btVerFin").addEventListener("click", () => cerrar("veloFin"));
+$("btOtra").addEventListener("click", () => { cerrar("veloFin"); pintarMenu(); abrir("veloMenu"); });
+
+$("opsCorona").addEventListener("click", e => {
+  const b = e.target.closest("button");
+  if (!b || !coronaPend) return;
+  const t = +b.dataset.t;
+  const mv = coronaPend.find(m => mvCorona(m) === t) || coronaPend[0];
+  coronaPend = null;
+  cerrar("veloCorona");
+  aplicar(mv);
+});
+
+for (const id of ["veloMenu", "veloFin"]){
+  $(id).addEventListener("click", e => { if (e.target.id === id) cerrar(id); });
+}
+
+/* ------------------------------------------------------------------ inicio */
+try {
+  const t = localStorage.getItem(K_TEMA);
+  if (t) document.documentElement.dataset.tema = t;
+} catch(e){}
+
+redimensionar();
+arrancarMotor();
+
+if (cargar()){
+  sel = -1; destinos = new Map(); pensando = false; coronaPend = null;
+  armarCasillas();
+  sincronizar();
+  pintarTodo();
+  if (!fin && !soyHumano(pos.turno)) setTimeout(pedirMaquina, 500);
+} else {
+  nueva();
+  setTimeout(() => { pintarMenu(); abrir("veloMenu"); }, 350);
+}
+
+if ("serviceWorker" in navigator)
+  addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+</script>
+</body>
+</html>
