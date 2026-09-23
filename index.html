@@ -4,57 +4,59 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>xchess</title>
-<meta name="theme-color" content="#3B2A1C">
+<meta name="theme-color" content="#17414F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="xchess">
 <meta name="description" content="Chess: play the computer, or two players passing the phone.">
-<link rel="icon" href="data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'><rect%20width='64'%20height='64'%20rx='14'%20fill='%233B2A1C'/><rect%20x='8'%20y='8'%20width='24'%20height='24'%20fill='%23E8D5B0'/><rect%20x='32'%20y='32'%20width='24'%20height='24'%20fill='%23E8D5B0'/><rect%20x='32'%20y='8'%20width='24'%20height='24'%20fill='%23A9784E'/><rect%20x='8'%20y='32'%20width='24'%20height='24'%20fill='%23A9784E'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'><rect%20width='64'%20height='64'%20rx='14'%20fill='%231B4A5C'/><rect%20x='8'%20y='8'%20width='24'%20height='24'%20fill='%23FFFFFF'/><rect%20x='32'%20y='32'%20width='24'%20height='24'%20fill='%23FFFFFF'/><rect%20x='32'%20y='8'%20width='24'%20height='24'%20fill='%234AB3D3'/><rect%20x='8'%20y='32'%20width='24'%20height='24'%20fill='%234AB3D3'/></svg>">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href='data:application/manifest+json,{"name":"xchess","short_name":"xchess","lang":"en","start_url":".","display":"standalone","orientation":"portrait","background_color":"%23F5F1E8","theme_color":"%233B2A1C"}'>
+<link rel="manifest" href='data:application/manifest+json,{"name":"xchess","short_name":"xchess","lang":"en","start_url":".","display":"standalone","orientation":"portrait","background_color":"%23EFF4F7","theme_color":"%2317414F"}'>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F5F1E8; --raised:#FFFDF7; --sunk:#EAE3D5;
-    --ink:#241D15; --soft:#6E6151; --faint:#9A8C79;
-    --accent:#3B2A1C; --accent-ink:#F7F1E6; --accent-dim:#E6DCC9;
-    --laton:#A97A23; --laton-dim:#F2E6CC;
-    --ok:#3F7D53; --ok-dim:#DFEDE2;
+    --bg:#EFF4F7; --raised:#FFFFFF; --sunk:#E1EAEF;
+    --ink:#10242E; --soft:#5B7684; --faint:#90A7B4;
+    --accent:#17414F; --accent-ink:#F0F8FB; --accent-dim:#DCE9EF;
+    --laton:#C4860F; --laton-dim:#FAEFD6;
+    --ok:#2F7D62; --ok-dim:#DDEFE8;
     --mal:#B23A2B; --mal-dim:#F6DFDB;
-    --line:#DED5C4; --radius:14px;
-    --shadow:0 1px 2px rgba(36,29,21,.07), 0 14px 32px -20px rgba(36,29,21,.45);
+    --line:#D7E2E8; --radius:14px;
+    --shadow:0 1px 2px rgba(16,36,46,.07), 0 14px 32px -20px rgba(16,36,46,.45);
     --sans:'Inter',system-ui,-apple-system,sans-serif;
     --disp:'Cormorant Garamond',Georgia,serif;
     --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
     /* El tablero no cambia con el tema. Las piezas tienen que leerse igual
        a las 3 de la tarde y a las 2 de la manana. */
-    --clara:#E9D6B3; --oscura:#A5763F;
-    --marco:#41301F;
-    --pieza-b:#FBF6EA; --pieza-b-borde:#2A2118;
-    --pieza-n:#2B2219; --pieza-n-borde:#100C08;
-    --sel:#C9922B; --ultimo:rgba(201,146,43,.34); --jaque:#C4402E;
+    --clara:#FFFFFF; --oscura:#4AB3D3;
+    --marco:#1B4A5C;
+    --pieza-b:#FCFCFA; --pieza-b-borde:#14313D;
+    --pieza-n:#173642; --pieza-n-borde:#050F14;
+    /* Las marcas van en ambar: es lo unico que se lee igual de bien sobre el
+       blanco y sobre el celeste del tablero. */
+    --sel:#E3A11B; --ultimo:rgba(227,161,27,.38); --jaque:#D94530;
   }
   :root[data-tema="oscuro"]{
-    --bg:#15120D; --raised:#201B14; --sunk:#0E0B07;
-    --ink:#F0E8D9; --soft:#A2937C; --faint:#6E6252;
-    --accent:#2A1E13; --accent-ink:#F7F1E6; --accent-dim:#2C2317;
-    --laton:#D9AC4A; --laton-dim:#2E2515;
-    --ok:#5FAE77; --ok-dim:#17251A;
+    --bg:#0B1419; --raised:#132029; --sunk:#060E12;
+    --ink:#E6F0F5; --soft:#94AEBC; --faint:#5F7886;
+    --accent:#123340; --accent-ink:#EAF6FB; --accent-dim:#12303C;
+    --laton:#E3A63A; --laton-dim:#2C2415;
+    --ok:#56AF90; --ok-dim:#122520;
     --mal:#DB6252; --mal-dim:#2A1613;
-    --line:#2F281D;
+    --line:#22333D;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 14px 32px -20px rgba(0,0,0,.85);
   }
   @media (prefers-color-scheme:dark){
     :root:not([data-tema="claro"]){
-      --bg:#15120D; --raised:#201B14; --sunk:#0E0B07;
-      --ink:#F0E8D9; --soft:#A2937C; --faint:#6E6252;
-      --accent:#2A1E13; --accent-ink:#F7F1E6; --accent-dim:#2C2317;
-      --laton:#D9AC4A; --laton-dim:#2E2515;
-      --ok:#5FAE77; --ok-dim:#17251A;
+      --bg:#0B1419; --raised:#132029; --sunk:#060E12;
+      --ink:#E6F0F5; --soft:#94AEBC; --faint:#5F7886;
+      --accent:#123340; --accent-ink:#EAF6FB; --accent-dim:#12303C;
+      --laton:#E3A63A; --laton-dim:#2C2415;
+      --ok:#56AF90; --ok-dim:#122520;
       --mal:#DB6252; --mal-dim:#2A1613;
-      --line:#2F281D;
+      --line:#22333D;
       --shadow:0 1px 2px rgba(0,0,0,.4), 0 14px 32px -20px rgba(0,0,0,.85);
     }
   }
@@ -102,12 +104,14 @@
     overflow:hidden; height:23px;
   }
   .jug .cap svg{width:22px; height:22px; margin-right:-8px; opacity:.72;}
+  /* La ventaja de material se ve de los dos lados, como pastilla con signo. */
   .jug .vent{
-    font-family:var(--mono); font-size:12px; color:var(--soft); flex:0 0 auto;
+    font-family:var(--mono); font-size:13px; font-weight:500; flex:0 0 auto;
+    padding:2.5px 8px; border-radius:8px; line-height:1.3; letter-spacing:-.01em;
   }
-  .jug .reloj{
-    font-family:var(--mono); font-size:12px; color:var(--faint); flex:0 0 auto;
-  }
+  .jug .vent.arriba{background:var(--ok-dim); color:var(--ok);}
+  .jug .vent.abajo{background:var(--mal-dim); color:var(--mal);}
+  .jug .vent.igual{background:var(--sunk); color:var(--faint);}
   .jug.activo .nom{color:var(--laton);}
   .jug .punto{
     width:7px; height:7px; border-radius:50%; background:transparent; flex:0 0 auto;
@@ -149,22 +153,25 @@
     opacity:.5; pointer-events:none; line-height:1;
   }
   .coord.f{left:2.5px; top:2.5px;} .coord.c{right:2.5px; bottom:2px;}
-  .cas.c .coord{color:#8A5F31;} .cas.o .coord{color:#F0DDBB;}
+  .cas.c .coord{color:#8FB3C2;} .cas.o .coord{color:#EAF7FC;}
 
   .marcas{position:absolute; inset:0; border-radius:8px; overflow:hidden; display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr); pointer-events:none;}
   .mk{position:relative;}
-  .mk.ult{background:var(--ultimo);}
-  .mk.sel{background:rgba(201,146,43,.46); box-shadow:inset 0 0 0 3px var(--sel);}
-  .mk.jaque{background:radial-gradient(circle at 50% 50%, rgba(196,64,46,.85), rgba(196,64,46,0) 72%);}
+  .mk.c.ult{background:rgba(74,179,211,.55);}
+  .mk.o.ult{background:rgba(23,105,138,.55);}
+  .mk.c.sel{background:rgba(74,179,211,.8);}
+  .mk.o.sel{background:rgba(23,105,138,.75);}
+  .mk.sel{box-shadow:inset 0 0 0 3px var(--sel);}
+  .mk.jaque{background:radial-gradient(circle at 50% 50%, rgba(217,69,48,.88), rgba(217,69,48,0) 72%);}
   .mk.dest::before{
     content:''; position:absolute; left:50%; top:50%; width:30%; height:30%;
     transform:translate(-50%,-50%); border-radius:50%;
-    background:rgba(30,22,14,.3);
+    background:rgba(17,52,66,.34);
   }
-  .mk.sobre{box-shadow:inset 0 0 0 4px rgba(201,146,43,.95);}
+  .mk.sobre{box-shadow:inset 0 0 0 4px rgba(227,161,27,.95);}
   .mk.come::before{
     content:''; position:absolute; inset:7%; border-radius:50%;
-    border:4.5px solid rgba(30,22,14,.3); background:transparent;
+    border:4.5px solid rgba(17,52,66,.34); background:transparent;
   }
 
   .piezas{position:absolute; inset:0; pointer-events:none;}
@@ -193,8 +200,34 @@
     border-radius:8px; background:var(--sunk); color:var(--soft); white-space:nowrap;
   }
   .jd .n{color:var(--faint); margin-right:3px;}
-  .jd.ahora{background:var(--laton-dim); color:var(--ink); font-weight:500;}
+  .jd{cursor:pointer;}
+  .jd.ahora{background:var(--laton-dim); color:var(--ink); font-weight:500; box-shadow:inset 0 0 0 1.5px var(--laton);}
   .jugadas .vacio{font-family:var(--sans); font-size:12.5px; color:var(--faint); padding:4px 2px;}
+
+  /* Repaso de jugadas viejas: aparece solo cuando se esta mirando el pasado. */
+  .barra-rev{
+    display:none; align-items:center; gap:7px; margin-bottom:8px;
+    padding:6px; border-radius:12px; background:var(--accent-dim);
+    border:1px solid var(--line);
+  }
+  .barra-rev.ver{display:flex;}
+  .barra-rev .donde{
+    flex:1 1 auto; text-align:center; font-family:var(--mono);
+    font-size:12.5px; color:var(--ink); white-space:nowrap;
+  }
+  .rev{
+    flex:0 0 auto; height:32px; min-width:34px; padding:0 9px;
+    display:grid; place-items:center; border-radius:9px;
+    border:1px solid var(--line); background:var(--raised); color:var(--ink);
+    font-family:var(--sans); font-size:12.5px; font-weight:600; cursor:pointer;
+  }
+  .rev:active{transform:scale(.95);}
+  .rev[disabled]{opacity:.35;}
+  .rev svg{width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;}
+  .rev.vivo{background:var(--accent); color:var(--accent-ink); border-color:transparent;}
+  /* Mirando el pasado el tablero no se toca: se nota y no acepta jugadas. */
+  .tablero.mirando{opacity:.93;}
+  .tablero.mirando .casillas{filter:saturate(.82) brightness(.97);}
 
   .botones{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;}
   .bt{
@@ -287,58 +320,66 @@
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-  <!-- Juego de piezas: siluetas Staunton planas, dibujadas sobre una peana
-       comun para que las seis lean como un mismo juego. viewBox 45x45. -->
+  <!-- Juego de piezas: siluetas Staunton. Las seis se apoyan en la misma
+       peana y el mismo collar para que lean como un mismo juego, y cada una
+       cambia solo de la cintura para arriba. viewBox 45x45. -->
+  <g id="p-base"><path d="M13.4 35h18.2c.3 2.1 1.7 3.5 3.9 4.2v1.6H9.5v-1.6c2.2-.7 3.6-2.1 3.9-4.2z"/></g>
+  <g id="p-collar"><path d="M14.8 31.5h15.4a1.15 1.15 0 011.15 1.15v1.2A1.15 1.15 0 0130.2 35H14.8a1.15 1.15 0 01-1.15-1.15v-1.2A1.15 1.15 0 0114.8 31.5z"/></g>
+
   <g id="g-peon">
-    <path d="M22.5 9.4a3.9 3.9 0 013.9 3.9 3.9 3.9 0 01-1.25 2.86c2.05 1.24 3.45 3.28 3.45 5.74 0 2.9-1.6 5.3-2.85 7.4h-9.5c-1.25-2.1-2.85-4.5-2.85-7.4 0-2.46 1.4-4.5 3.45-5.74A3.9 3.9 0 0118.6 13.3a3.9 3.9 0 013.9-3.9z"/>
-    <path d="M16.6 31.4h11.8a1.1 1.1 0 011.1 1.1v1.6a1.1 1.1 0 01-1.1 1.1H16.6a1.1 1.1 0 01-1.1-1.1v-1.6a1.1 1.1 0 011.1-1.1z"/>
-    <path d="M16.2 35.6h12.6c.2 2.1 1.5 3.3 3.4 3.9v1.1H12.8v-1.1c1.9-.6 3.2-1.8 3.4-3.9z"/>
+    <circle cx="22.5" cy="11.3" r="4.25"/>
+    <path d="M18.4 15.2c1.1 1 2.5 1.6 4.1 1.6s3-.6 4.1-1.6c2 1.7 3.2 3.9 3.2 6.4 0 4-2.7 6.7-3 10.3h-8.6c-.3-3.6-3-6.3-3-10.3 0-2.5 1.2-4.7 3.2-6.4z"/>
+    <path d="M16.1 31.5h12.8a1.1 1.1 0 011.1 1.1v1.3a1.1 1.1 0 01-1.1 1.1H16.1a1.1 1.1 0 01-1.1-1.1v-1.3a1.1 1.1 0 011.1-1.1z"/>
+    <path d="M15 35h15c.3 2 1.5 3.3 3.3 3.9v1.5H11.7v-1.5c1.8-.6 3-1.9 3.3-3.9z"/>
   </g>
+
   <g id="g-torre">
-    <path d="M12.4 9.3h4.3v2.7h3.7V9.3h4.2v2.7h3.7V9.3h4.3v6.6h-20.2z"/>
-    <path d="M11.4 15.6h22.2v3.6H11.4z"/>
-    <path d="M14.6 19.9h15.8l-1.1 11.2H15.7z"/>
-    <path d="M14.4 31.4h16.2a1.1 1.1 0 011.1 1.1v1.7a1.1 1.1 0 01-1.1 1.1H14.4a1.1 1.1 0 01-1.1-1.1v-1.7a1.1 1.1 0 011.1-1.1z"/>
-    <path d="M13.6 35.6h17.8c.2 2.1 1.6 3.3 3.6 3.9v1.1H10v-1.1c2-.6 3.4-1.8 3.6-3.9z"/>
+    <path d="M12.4 9.2h4.3v2.7h3.7V9.2h4.2v2.7h3.7V9.2h4.3v6.6H12.4z"/>
+    <path d="M11.6 15.8h21.8v3.3H11.6z"/>
+    <path d="M14.6 19.1h15.8l-1 12.4H15.6z"/>
+    <use href="#p-collar"/><use href="#p-base"/>
   </g>
+
   <g id="g-alfil">
-    <path d="M22.5 7.6a1.95 1.95 0 011.95 1.95c0 .62-.29 1.17-.74 1.53 2.95 2.28 5.89 5.79 5.89 9.42 0 3.62-2.79 6.1-7.1 6.1s-7.1-2.48-7.1-6.1c0-3.63 2.94-7.14 5.89-9.42a1.94 1.94 0 01-.74-1.53A1.95 1.95 0 0122.5 7.6z"/>
-    <path d="M17.8 27.2h9.4l.7 4.2H17.1z" />
-    <path d="M15.9 31.4h13.2a1.1 1.1 0 011.1 1.1v1.7a1.1 1.1 0 01-1.1 1.1H15.9a1.1 1.1 0 01-1.1-1.1v-1.7a1.1 1.1 0 011.1-1.1z"/>
-    <path d="M15.2 35.6h14.6c.2 2.1 1.6 3.3 3.5 3.9v1.1H11.7v-1.1c1.9-.6 3.3-1.8 3.5-3.9z"/>
+    <circle cx="22.5" cy="7.7" r="1.95"/>
+    <path d="M22.5 10c3.5 2.8 6.2 6.2 6.2 9.6 0 3.4-2.8 5.5-6.2 5.5s-6.2-2.1-6.2-5.5c0-3.4 2.7-6.8 6.2-9.6z"/>
+    <path d="M18.3 25.6h8.4l.6 2.4h-9.6z"/>
+    <path d="M17.2 28h10.6a1.1 1.1 0 011.1 1.1v1.1a1.1 1.1 0 01-1.1 1.1H17.2a1.1 1.1 0 01-1.1-1.1v-1.1A1.1 1.1 0 0117.2 28z"/>
+    <use href="#p-collar"/><use href="#p-base"/>
   </g>
+
   <g id="g-dama">
-    <circle cx="10.6" cy="15.4" r="2.05"/><circle cx="16.5" cy="12.5" r="2.05"/>
-    <circle cx="22.5" cy="11.1" r="2.25"/>
-    <circle cx="28.5" cy="12.5" r="2.05"/><circle cx="34.4" cy="15.4" r="2.05"/>
-    <path d="M11.1 16.8l2.9 11.4h17l2.9-11.4-3.5 4.9-2.6-7.4-2.9 7.7h-2.8l-2.9-7.7-2.6 7.4z"/>
-    <path d="M14 28.2h17l.7 3.2H13.3z"/>
-    <path d="M14 31.4h17a1.1 1.1 0 011.1 1.1v1.7a1.1 1.1 0 01-1.1 1.1H14a1.1 1.1 0 01-1.1-1.1v-1.7A1.1 1.1 0 0114 31.4z"/>
-    <path d="M13.2 35.6h18.6c.2 2.1 1.7 3.3 3.7 3.9v1.1H9.5v-1.1c2-.6 3.5-1.8 3.7-3.9z"/>
+    <circle cx="10.4" cy="15.1" r="2.05"/><circle cx="16.4" cy="12.2" r="2.05"/>
+    <circle cx="22.5" cy="10.8" r="2.25"/>
+    <circle cx="28.6" cy="12.2" r="2.05"/><circle cx="34.6" cy="15.1" r="2.05"/>
+    <path d="M11 16.6l3 11.1h17l3-11.1-5.3 5.2-2.5-8.1-3 8.4h-2.4l-3-8.4-2.5 8.1z"/>
+    <path d="M14 27.7h17l.5 3.8H13.5z"/>
+    <use href="#p-collar"/><use href="#p-base"/>
   </g>
+
   <g id="g-rey">
-    <path d="M21.2 6.6h2.6v2.9h2.9v2.6h-2.9v3.3h-2.6v-3.3h-2.9V9.5h2.9z"/>
-    <path d="M22.5 15.2c3 0 5.5 1.2 7.1 3 2.7 3 2.7 7.3.4 10.8l-.3.4H15.3l-.3-.4c-2.3-3.5-2.3-7.8.4-10.8 1.6-1.8 4.1-3 7.1-3z"/>
-    <path d="M14.6 29.4h15.8l.6 2H14z"/>
-    <path d="M13.9 31.4h17.2a1.1 1.1 0 011.1 1.1v1.7a1.1 1.1 0 01-1.1 1.1H13.9a1.1 1.1 0 01-1.1-1.1v-1.7a1.1 1.1 0 011.1-1.1z"/>
-    <path d="M13.1 35.6h18.8c.2 2.1 1.7 3.3 3.7 3.9v1.1H9.4v-1.1c2-.6 3.5-1.8 3.7-3.9z"/>
+    <path d="M21.2 5.9h2.6v2.9h2.9v2.5h-2.9v3.3h-2.6v-3.3h-2.9V8.8h2.9z"/>
+    <path d="M22.5 14.9c3.3 0 6 1.4 7.6 3.5 2.2 2.9 1.9 6.6-.5 9.4H15.4c-2.4-2.8-2.7-6.5-.5-9.4 1.6-2.1 4.3-3.5 7.6-3.5z"/>
+    <path d="M15.2 27.8h14.6l1 3.7H14.2z"/>
+    <use href="#p-collar"/><use href="#p-base"/>
   </g>
+
   <g id="g-caballo">
     <!-- Perfil mirando a la izquierda: dos orejas, frente, hocico abajo a la
          izquierda y el cuello arqueado bajando a la derecha. -->
-    <path d="M19.4 9.8l.9-3.2 2.4 3.7c1-.6 2.1-.9 3.2-1l.6-2.4 2.5 3.6c2.4 2 3.6 5.3 3.6 9.9V31.4H15.8v-4.1c0-1.8-1.8-2.8-3.4-1.8-1.8 1.1-3.8.5-4.2-1.2-.4-1.7 1-3.2 2.6-4.8 1.8-1.8 3.2-3.4 4.2-5.4.9-1.8 2-3.4 4.4-4.3z"/>
-    <path d="M14.6 31.4h16.8a1.1 1.1 0 011.1 1.1v1.7a1.1 1.1 0 01-1.1 1.1H14.6a1.1 1.1 0 01-1.1-1.1v-1.7a1.1 1.1 0 011.1-1.1z"/>
-    <path d="M13.8 35.6h18.4c.2 2.1 1.7 3.3 3.6 3.9v1.1H10.2v-1.1c1.9-.6 3.4-1.8 3.6-3.9z"/>
+    <path d="M19.4 9.8l.9-3.2 2.4 3.7c1-.6 2.1-.9 3.2-1l.6-2.4 2.5 3.6c2.4 2 3.6 5.3 3.6 9.9V31.5H15.8v-4.2c0-1.8-1.8-2.8-3.4-1.8-1.8 1.1-3.8.5-4.2-1.2-.4-1.7 1-3.2 2.6-4.8 1.8-1.8 3.2-3.4 4.2-5.4.9-1.8 2-3.4 4.4-4.3z"/>
+    <use href="#p-collar"/><use href="#p-base"/>
   </g>
-  <!-- detalles que solo se dibujan con el color del contorno -->
-  <g id="d-alfil"><path d="M20.4 14.4l4.2 4.2M24.6 14.4l-4.2 4.2" fill="none" stroke-linecap="round"/></g>
-  <g id="d-rey"><path d="M15.6 28.4c4.6-2.4 9.2-2.4 13.8 0M17.1 24.7c3.6-1.7 7.2-1.7 10.8 0" fill="none" stroke-linecap="round"/></g>
+
+  <!-- Detalles: solo se dibujan con el color del contorno. -->
+  <g id="d-torre"><path d="M15.6 19.1l-.9 12.4M29.4 19.1l.9 12.4" fill="none" opacity=".4"/></g>
+  <g id="d-alfil"><path d="M20.2 14.3l4.8 4.8" fill="none" stroke-linecap="round"/></g>
+  <g id="d-rey"><path d="M16.2 24.6c4.2-2 8.4-2 12.6 0" fill="none" stroke-linecap="round"/></g>
   <g id="d-caballo">
     <circle cx="17.2" cy="15.4" r="1.15" stroke="none"/>
     <circle cx="11.2" cy="22.1" r=".72" stroke="none" opacity=".7"/>
     <path d="M27.6 11.6c2 2 3 5 3.1 9.4" fill="none" stroke-linecap="round" opacity=".5"/>
   </g>
-  <g id="d-torre"><path d="M15.6 19.9l-.6 11.5M29.4 19.9l.6 11.5" fill="none" opacity=".45"/></g>
 </defs></svg>
 
 <div id="app">
@@ -357,8 +398,8 @@
       <div class="jug" id="jugArriba">
         <div class="punto"></div>
         <div class="nom">Black</div>
-        <div class="cap" id="capArriba"></div>
         <div class="vent" id="ventArriba"></div>
+        <div class="cap" id="capArriba"></div>
       </div>
 
       <div class="tablero quieto" id="tablero">
@@ -370,14 +411,24 @@
       <div class="jug" id="jugAbajo">
         <div class="punto"></div>
         <div class="nom">White</div>
-        <div class="cap" id="capAbajo"></div>
         <div class="vent" id="ventAbajo"></div>
+        <div class="cap" id="capAbajo"></div>
       </div>
     </div>
   </div>
 
   <div class="bajo">
     <div class="jugadas" id="jugadas"></div>
+    <div class="barra-rev" id="barraRev">
+      <button class="rev" id="revAtras" aria-label="Previous move">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="donde" id="revDonde"></div>
+      <button class="rev" id="revAdelante" aria-label="Next move">
+        <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+      <button class="rev vivo" id="revVivo">Back to game</button>
+    </div>
     <div class="botones">
       <button class="bt" id="btDeshacer">
         <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 010 10h-4"/></svg>
@@ -435,6 +486,13 @@
   <div class="grupo">
     <div class="fila-sw" id="swPistas" role="switch">
       <div><div class="t">Show legal moves</div><div class="d">Dots on the squares you can move to</div></div>
+      <div class="sw"></div>
+    </div>
+  </div>
+
+  <div class="grupo">
+    <div class="fila-sw" id="swSonido" role="switch">
+      <div><div class="t">Sound</div><div class="d">A knock for a move, a heavier one for a capture</div></div>
       <div class="sw"></div>
     </div>
   </div>
@@ -1059,7 +1117,7 @@ const NIVELES = {
 /* ============================================================================
    INTERFAZ. El nucleo de arriba ya sabe de ajedrez; esto solo lo dibuja.
    ========================================================================== */
-const VERSION = "MK 1.1";
+const VERSION = "MK 1.2";
 const K_ESTADO = "xchess.partida";
 const K_TEMA   = "xchess.tema";
 
@@ -1085,9 +1143,33 @@ addEventListener("orientationchange", () => setTimeout(redimensionar, 120));
 /* ------------------------------------------------------------ estado vivo */
 let pos, historial, conf, girado, sel, destinos, piezasEn, idPieza, motor, pensando, coronaPend, fin;
 
+/* Revisar jugadas viejas: `revision` guarda en que jugada quedo parado el
+   repaso y la posicion de ese momento. La partida de verdad sigue en `pos` y
+   no se toca nunca; lo que se dibuja sale de mostrada(). Mirar el pasado no
+   puede cambiar el presente, asi que mientras se revisa no se deja jugar. */
+let revision = null;
+const mostrada = () => revision ? revision.pos : pos;
+const plyVivo  = () => historial.mvs.length;
+
+function posEnPly(k){
+  const p = desdeFen(INICIAL);
+  for (let i = 0; i < k; i++) hacer(p, historial.mvs[i]);
+  return p;
+}
+
+function irAPly(k){
+  k = Math.max(0, Math.min(plyVivo(), k));
+  revision = k === plyVivo() ? null : { ply: k, pos: posEnPly(k) };
+  sel = -1; destinos = new Map();
+  sincronizar();
+  pintarTodo();
+}
+
+const salirRevision = () => { if (revision) irAPly(plyVivo()); };
+
 conf = {
   modo: "maquina", nivel: "normal", color: "b",
-  girar: true, pistas: true,
+  girar: true, pistas: true, sonido: true,
 };
 
 /* ------------------------------------------------------------- utilidades */
@@ -1099,6 +1181,73 @@ function avisar(txt){
 }
 
 function vibrar(ms){ if (navigator.vibrate) try { navigator.vibrate(ms); } catch(e){} }
+
+/* ------------------------------------------------------------------ sonido
+   Los golpes se sintetizan con Web Audio en vez de traer archivos: la app
+   sigue siendo un solo HTML y suena igual sin senal. Cada golpe es un tono
+   que cae rapido (el cuerpo de la madera) mas un chasquido de ruido filtrado
+   (el ataque). Comer suena mas grave, mas fuerte y mas largo que mover. */
+let audio = null;
+
+function abrirAudio(){
+  if (audio) return audio;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  try { audio = new AC(); } catch(e){ return null; }
+  return audio;
+}
+
+function ruido(dur){
+  const n = Math.max(1, Math.floor(audio.sampleRate * dur));
+  const buf = audio.createBuffer(1, n, audio.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  return buf;
+}
+
+function golpe({ tono, fuerza, dur, chasquido }){
+  const t = audio.currentTime;
+
+  const osc = audio.createOscillator(), g = audio.createGain();
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(tono * 2.4, t);
+  osc.frequency.exponentialRampToValueAtTime(tono, t + dur * .6);
+  g.gain.setValueAtTime(.0001, t);
+  g.gain.exponentialRampToValueAtTime(fuerza, t + .005);
+  g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  osc.connect(g); g.connect(audio.destination);
+  osc.start(t); osc.stop(t + dur + .02);
+
+  const src = audio.createBufferSource(), gn = audio.createGain(), filtro = audio.createBiquadFilter();
+  src.buffer = ruido(.05);
+  filtro.type = "bandpass";
+  filtro.frequency.value = tono * 6;
+  filtro.Q.value = 1.1;
+  gn.gain.setValueAtTime(chasquido, t);
+  gn.gain.exponentialRampToValueAtTime(.0001, t + .05);
+  src.connect(filtro); filtro.connect(gn); gn.connect(audio.destination);
+  src.start(t); src.stop(t + .06);
+}
+
+const GOLPES = {
+  mueve: { tono: 215, fuerza: .15, dur: .085, chasquido: .09 },
+  come:  { tono: 125, fuerza: .26, dur: .17,  chasquido: .20 },
+};
+
+function sonar(cual){
+  if (!conf.sonido || !abrirAudio()) return;
+  try {
+    if (audio.state === "suspended") audio.resume();
+    golpe(GOLPES[cual]);
+  } catch(e){}
+}
+
+/* iOS no deja sonar hasta que el usuario toco algo: se destraba con el primer
+   toque, y de ahi en mas las jugadas del motor tambien suenan. */
+addEventListener("pointerdown", () => {
+  const a = abrirAudio();
+  if (a && a.state === "suspended") a.resume();
+}, { passive: true });
 
 /* Cuantas veces se repitio la posicion actual en toda la partida. */
 function repeticiones(){
@@ -1130,7 +1279,7 @@ function svgPieza(p, tam){
   const detalle = blanca ? borde : "rgba(240,230,210,.42)";
   const extra = ["", "", "caballo", "alfil", "torre", "", "rey"][t];
   return `<svg viewBox="0 0 45 45"${tam ? ` width="${tam}" height="${tam}"` : ""}>
-    <g fill="${relleno}" stroke="${borde}" stroke-width="1.5" stroke-linejoin="round"><use href="#g-${g}"/></g>
+    <g fill="${relleno}" stroke="${borde}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><use href="#g-${g}"/></g>
     ${extra ? `<g fill="${detalle}" stroke="${detalle}" stroke-width="1.35"><use href="#d-${extra}"/></g>` : ""}
   </svg>`;
 }
@@ -1163,12 +1312,13 @@ function colocar(el, s){
 
 /* Rehace las piezas de cero, sin animacion. Para cargar, deshacer o girar. */
 function sincronizar(){
+  const tab = mostrada().t;
   elPiezas.innerHTML = "";
   piezasEn = new Map();
   idPieza = 0;
   elTablero.classList.add("quieto");
   for (let f = 0; f < 8; f++) for (let c = 0; c < 8; c++){
-    const s = f * 16 + c, p = pos.t[s];
+    const s = f * 16 + c, p = tab[s];
     if (!p) continue;
     const el = document.createElement("div");
     el.className = "pz";
@@ -1214,17 +1364,21 @@ function animar(mv, piezaMovida){
 
 /* ------------------------------------------------------------- marcas y UI */
 function pintarMarcas(){
-  const ult = historial.mvs.length ? historial.mvs[historial.mvs.length - 1] : 0;
+  const P = mostrada();
+  const hasta = revision ? revision.ply : plyVivo();
+  const ult = hasta ? historial.mvs[hasta - 1] : 0;
   const ultDe = ult ? mvDe(ult) : -1, ultA = ult ? mvA(ult) : -1;
-  const reySq = enJaque(pos) ? pos.reyes[pos.turno === BLANCO ? 0 : 1] : -1;
+  const reySq = enJaque(P) ? P.reyes[P.turno === BLANCO ? 0 : 1] : -1;
 
   for (const m of elMarcas.children){
     const s = +m.dataset.s;
-    let cl = "mk";
+    /* La marca necesita saber de que color es su casilla: el mismo tinte no
+       se lee igual sobre el blanco que sobre el celeste. */
+    let cl = "mk " + ((filaDe(s) + colDe(s)) % 2 === 0 ? "c" : "o");
     if (s === ultDe || s === ultA) cl += " ult";
     if (s === reySq) cl += " jaque";
     if (s === sel) cl += " sel";
-    if (conf.pistas && destinos.has(s)) cl += pos.t[s] || destinos.get(s).paso ? " come" : " dest";
+    if (conf.pistas && destinos.has(s)) cl += P.t[s] || destinos.get(s).paso ? " come" : " dest";
     m.className = cl;
   }
 }
@@ -1232,13 +1386,15 @@ function pintarMarcas(){
 function pintarCapturadas(){
   /* Lo que falta respecto del juego completo es lo que se comieron. */
   const completo = { 1: 8, 2: 2, 3: 2, 4: 2, 5: 1 };
+  const P = mostrada();
+  const CUENTA = [0, 1, 3, 3, 5, 9, 0];      // peon, caballo, alfil, torre, dama
   const vivas = { 8: {}, 16: {} }, valor = { 8: 0, 16: 0 };
   for (let f = 0; f < 8; f++) for (let c = 0; c < 8; c++){
-    const p = pos.t[f * 16 + c];
+    const p = P.t[f * 16 + c];
     if (!p) continue;
     const t = tipo(p);
     vivas[colorDe(p)][t] = (vivas[colorDe(p)][t] || 0) + 1;
-    valor[colorDe(p)] += VALOR[t];
+    valor[colorDe(p)] += CUENTA[t];
   }
 
   const pinta = (elCap, elVent, colorPropio) => {
@@ -1249,8 +1405,12 @@ function pintarCapturadas(){
       for (let i = 0; i < Math.max(0, faltan); i++) html += svgPieza(t | colorPropio);
     }
     elCap.innerHTML = html;
-    const dif = valor[rival(colorPropio)] - valor[colorPropio];
-    elVent.textContent = dif > 0 ? "+" + dif / 100 : "";
+    /* La ventaja se muestra de los dos lados y con signo: el que va arriba la
+       ve en verde con +, el otro en rojo con -. Con material parejo, un "=".
+       Mostrarla de un lado solo obliga a adivinar de quien es. */
+    const dif = valor[colorPropio] - valor[rival(colorPropio)];
+    elVent.textContent = dif === 0 ? "=" : (dif > 0 ? "+" : "−") + Math.abs(dif);
+    elVent.className = "vent " + (dif === 0 ? "igual" : dif > 0 ? "arriba" : "abajo");
   };
 
   const arribaEs = girado ? BLANCO : NEGRO;
@@ -1263,8 +1423,9 @@ function pintarCapturadas(){
   };
   $("jugArriba").querySelector(".nom").textContent = nomDe(arribaEs);
   $("jugAbajo").querySelector(".nom").textContent  = nomDe(rival(arribaEs));
-  $("jugArriba").classList.toggle("activo", pos.turno === arribaEs && !fin);
-  $("jugAbajo").classList.toggle("activo",  pos.turno !== arribaEs && !fin);
+  const turnoAhora = P.turno;
+  $("jugArriba").classList.toggle("activo", turnoAhora === arribaEs && !fin && !revision);
+  $("jugAbajo").classList.toggle("activo",  turnoAhora !== arribaEs && !fin && !revision);
 
   if (pensando){
     const lado = pos.turno === arribaEs ? $("jugArriba") : $("jugAbajo");
@@ -1278,21 +1439,35 @@ function pintarJugadas(){
     el.innerHTML = '<div class="vacio">No moves yet.</div>';
     return;
   }
+  const marcado = (revision ? revision.ply : plyVivo()) - 1;
   let html = "";
   for (let i = 0; i < historial.san.length; i++){
     const n = Math.floor(i / 2) + 1, blancas = i % 2 === 0;
-    const ahora = i === historial.san.length - 1 ? " ahora" : "";
-    html += `<div class="jd${ahora}">${blancas ? `<span class="n">${n}.</span>` : ""}${historial.san[i]}</div>`;
+    const ahora = i === marcado ? " ahora" : "";
+    html += `<div class="jd${ahora}" data-ply="${i + 1}">${blancas ? `<span class="n">${n}.</span>` : ""}${historial.san[i]}</div>`;
   }
   el.innerHTML = html;
-  el.scrollLeft = el.scrollWidth;
+  const act = el.querySelector(".jd.ahora");
+  if (act) act.scrollIntoView({ block: "nearest", inline: "center" });
+  else el.scrollLeft = el.scrollWidth;
 }
 
 function pintarTodo(){
   pintarMarcas();
   pintarCapturadas();
   pintarJugadas();
-  $("btDeshacer").disabled = !historial.mvs.length || pensando;
+  pintarRevision();
+  $("btDeshacer").disabled = !historial.mvs.length || pensando || !!revision;
+}
+
+function pintarRevision(){
+  const hay = !!revision;
+  $("barraRev").classList.toggle("ver", hay);
+  elTablero.classList.toggle("mirando", hay);
+  if (!hay) return;
+  $("revDonde").textContent = "Move " + revision.ply + " of " + plyVivo();
+  $("revAtras").disabled = revision.ply === 0;
+  $("revAdelante").disabled = false;
 }
 
 /* ------------------------------------------------------------ jugar el turno */
@@ -1305,6 +1480,9 @@ function turnoSiguiente(){
 }
 
 function aplicar(mv){
+  /* Si llega una jugada mientras se esta mirando el pasado, se vuelve al
+     presente: si no, el tablero mostraria una posicion que ya quedo vieja. */
+  if (revision){ revision = null; sincronizar(); }
   const piezaMovida = pos.t[mvDe(mv)];
   const texto = san(pos, mv, legales(pos));
 
@@ -1315,7 +1493,9 @@ function aplicar(mv){
   historial.claves.push(clave(pos));
 
   sel = -1; destinos = new Map();
-  vibrar(texto.includes("x") ? 18 : 10);
+  const comio = !!(mvF(mv) & F_COME);
+  sonar(comio ? "come" : "mueve");
+  vibrar(comio ? 18 : 10);
   pintarTodo();
   turnoSiguiente();
   /* En dos jugadores el tablero se da vuelta solo, una vez que la pieza
@@ -1332,7 +1512,7 @@ function girarSiHaceFalta(){
   pintarTodo();
 }
 
-const puedeJugar = () => !fin && !pensando && !coronaPend && soyHumano(pos.turno);
+const puedeJugar = () => !fin && !pensando && !coronaPend && !revision && soyHumano(pos.turno);
 const miaEn = s => { const p = pos.t[s]; return p && colorDe(p) === pos.turno; };
 
 function seleccionar(s){
@@ -1486,6 +1666,7 @@ function nueva(){
   pos = desdeFen(INICIAL);
   historial = { mvs: [], san: [], claves: [clave(pos)] };
   sel = -1; destinos = new Map(); fin = null; pensando = false; coronaPend = null;
+  revision = null;
   girado = conf.modo === "maquina" && miColor() === NEGRO;
   armarCasillas();
   sincronizar();
@@ -1496,6 +1677,7 @@ function nueva(){
 
 function deshacerJugada(){
   if (pensando || !historial.mvs.length) return;
+  revision = null;
 
   const volver = () => {
     deshacer(pos);
@@ -1532,6 +1714,7 @@ function pintarMenu(){
     el.setAttribute("aria-checked", el.dataset.color === conf.color);
   $("swGirar").setAttribute("aria-checked", conf.girar);
   $("swPistas").setAttribute("aria-checked", conf.pistas);
+  $("swSonido").setAttribute("aria-checked", conf.sonido);
   $("grNivel").style.display = conf.modo === "maquina" ? "" : "none";
   $("grColor").style.display = conf.modo === "maquina" ? "" : "none";
   $("grGirar").style.display = conf.modo === "dos" ? "" : "none";
@@ -1648,7 +1831,7 @@ $("btDeshacer").addEventListener("click", deshacerJugada);
 $("btGirar").addEventListener("click", () => {
   girado = !girado;
   armarCasillas();
-  sincronizar();
+  sincronizar();          // sincronizar ya dibuja la posicion que se este mirando
   pintarTodo();
   guardar();
 });
@@ -1663,6 +1846,26 @@ for (const el of document.querySelectorAll("[data-color]"))
 $("swGirar").addEventListener("click", () => { conf.girar = !conf.girar; pintarMenu(); });
 $("swPistas").addEventListener("click", () => {
   conf.pistas = !conf.pistas; pintarMenu(); pintarMarcas(); guardar();
+});
+$("swSonido").addEventListener("click", () => {
+  conf.sonido = !conf.sonido; pintarMenu(); guardar();
+  if (conf.sonido) sonar("mueve");        // para oir como quedo
+});
+
+/* Repaso: tocar una jugada de la lista lleva a esa posicion. */
+$("jugadas").addEventListener("click", e => {
+  const chip = e.target.closest("[data-ply]");
+  if (chip) irAPly(+chip.dataset.ply);
+});
+$("revAtras").addEventListener("click", () => irAPly((revision ? revision.ply : plyVivo()) - 1));
+$("revAdelante").addEventListener("click", () => irAPly((revision ? revision.ply : plyVivo()) + 1));
+$("revVivo").addEventListener("click", salirRevision);
+
+/* Con teclado (y en el escritorio) las flechas hacen lo mismo. */
+addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft")  irAPly((revision ? revision.ply : plyVivo()) - 1);
+  if (e.key === "ArrowRight") irAPly((revision ? revision.ply : plyVivo()) + 1);
+  if (e.key === "Escape")     salirRevision();
 });
 
 $("btSeguir").addEventListener("click", () => { cerrar("veloMenu"); guardar(); });
@@ -1694,7 +1897,7 @@ redimensionar();
 arrancarMotor();
 
 if (cargar()){
-  sel = -1; destinos = new Map(); pensando = false; coronaPend = null;
+  sel = -1; destinos = new Map(); pensando = false; coronaPend = null; revision = null;
   armarCasillas();
   sincronizar();
   pintarTodo();

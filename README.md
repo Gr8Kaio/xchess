@@ -1,6 +1,6 @@
 # xchess
 
-*MK 1.1*
+*MK 1.2*
 
 Ajedrez para el telefono (la interfaz esta en ingles). Contra la maquina o dos jugadores pasando el aparato.
 
@@ -21,9 +21,16 @@ no hay servidor ni cuenta ni nada que registrar.
 - Dos formas de mover: tocar origen y destino, o **arrastrar la pieza**. El
   arrastre recien arranca cuando el dedo se corrio de verdad, asi que apoyar y
   levantar sigue siendo un toque y nunca mueve nada sin querer.
-- Notacion algebraica con desambiguacion (`Nbd2`, `R1e4`), piezas comidas y
-  ventaja de material.
+- Notacion algebraica con desambiguacion (`Nbd2`, `R1e4`) y piezas comidas.
+- **Ventaja de material de los dos lados**, con signo y en peones de toda la
+  vida (1/3/3/5/9): el que va arriba la ve en verde, el otro en rojo.
+- **Repaso de la partida**: tocar cualquier jugada de la lista lleva el tablero
+  a esa posicion, con flechas para ir y venir. Es solo para mirar; mientras se
+  repasa no se puede jugar, y la partida de verdad no se toca.
+- **Sonido**: un golpe seco al mover y uno mas grave al comer, sintetizados con
+  Web Audio. Sin archivos: la app sigue siendo un solo HTML.
 - Deshacer, girar el tablero a mano, tema claro y oscuro.
+- Se mueve tocando o arrastrando; las flechas del teclado repasan la partida.
 - La partida se guarda sola: si cerras la app, seguis donde estabas.
 
 ## Como esta hecho
