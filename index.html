@@ -1248,7 +1248,7 @@ const NIVELES = {
 /* ============================================================================
    INTERFAZ. El nucleo de arriba ya sabe de ajedrez; esto solo lo dibuja.
    ========================================================================== */
-const VERSION = "MK 1.5";
+const VERSION = "MK 1.6";
 const K_ESTADO = "xchess.partida";
 const K_TEMA   = "xchess.tema";
 
@@ -1416,10 +1416,12 @@ const soyHumano = c => conf.modo === "dos" || c === miColor();
 /* ------------------------------------------------------------ dibujar SVG */
 function svgPieza(p){
   const L = ["", "P", "N", "B", "R", "Q", "K"][tipo(p)];
-  /* Los dibujos dejan bastante aire alrededor: se agrandan un poco tomando
-     como centro la base (50,94), asi crecen hacia arriba y no se despegan
-     de la linea de piso. */
-  return `<svg viewBox="0 0 100 100"><g transform="translate(50 94) scale(1.14) translate(-50 -94)"><use href="#pz-${colorDe(p) === BLANCO ? "w" : "b"}${L}"/></g></svg>`;
+  /* Sin escalar. Medido sobre los doce dibujos: el rey arranca en y=3.5, asi
+     que ya ocupa el 91% de lo alto de su casilla y cualquier agrandado lo
+     saca del viewBox, donde el SVG lo recorta (la cruz quedaba cortada al
+     ras). El maximo que entraria para todas es 1.039, que no vale la pena.
+     Que el peon se vea mas bajo no es un problema: un peon es mas bajo. */
+  return `<svg viewBox="0 0 100 100"><use href="#pz-${colorDe(p) === BLANCO ? "w" : "b"}${L}"/></svg>`;
 }
 
 /* Fila y columna en pantalla, contemplando el tablero dado vuelta. */

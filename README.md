@@ -1,6 +1,6 @@
 # xchess
 
-*MK 1.5*
+*MK 1.6*
 
 Ajedrez para el telefono (la interfaz esta en ingles). Contra la maquina o dos jugadores pasando el aparato.
 
@@ -99,6 +99,12 @@ el tema, igual que el tablero.
 Al meterlas se les saca el bloque `<metadata>` de procedencia (C2PA): son unos
 8 KB por pieza que adentro de la pagina no aportan nada. Las doce pasan de
 113 KB a 23 KB.
+
+**No agrandarlas.** Medido sobre los doce dibujos, el rey arranca en `y=3.5`:
+ya ocupa el 91% de lo alto de su casilla, y cualquier escalado lo saca del
+`viewBox`, donde el SVG lo recorta (la cruz queda cortada al ras). El maximo
+que entraria para todas es 1.039. Que el peon se vea mas bajo que el rey no es
+un problema de tamaño: un peon es mas bajo.
 
 ## Estructura
 
