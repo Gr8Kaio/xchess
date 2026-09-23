@@ -67,6 +67,34 @@
     -webkit-font-smoothing:antialiased;
   }
 
+  /* ---------- pantalla de inicio ---------- */
+  .portada{
+    position:fixed; inset:0; z-index:30; background:var(--bg);
+    display:none; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+  .portada.ver{display:block;}
+  .port-caja{
+    max-width:440px; margin:0 auto; padding:26px 18px 30px;
+    display:flex; flex-direction:column; gap:15px; min-height:100%;
+  }
+  .port-marca{text-align:center; margin-bottom:2px;}
+  .port-logo{
+    width:88px; height:88px; display:block; margin:0 auto 2px;
+    filter:drop-shadow(0 6px 12px rgba(18,28,40,.28));
+  }
+  .port-nombre{
+    font-family:var(--disp); font-size:44px; font-weight:700; line-height:1.05;
+    letter-spacing:-.015em;
+  }
+  .port-nombre span{color:var(--laton);}
+  .port-bajada{font-size:13.5px; color:var(--soft); margin-top:4px;}
+  .bt.grande{height:54px; font-size:15.5px;}
+  /* Con partida empezada, "Continuar" es lo primero y lo mas grande. */
+  .portada .grupo{margin-bottom:0;}
+  .portada .pie{margin-top:2px;}
+  #app.oculto{display:none;}
+
   #app{
     display:flex; flex-direction:column;
     height:100dvh; height:100svh;
@@ -273,6 +301,7 @@
   }
   .velo.ver .hoja{transform:translateY(0);}
   .hoja h2{font-family:var(--disp); font-size:25px; font-weight:700; margin:0 0 3px;}
+  .portada h2{font-family:var(--disp); font-size:25px; font-weight:700; margin:0 0 3px;}
   .hoja .sub{font-size:13px; color:var(--soft); margin:0 0 16px;}
   .grupo{margin-bottom:15px;}
   .et{font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--faint); margin-bottom:7px;}
@@ -577,11 +606,17 @@
   </div>
 </div>
 
-<div class="velo" id="veloMenu"><div class="hoja">
-  <h2>Game</h2>
-  <p class="sub">Changing any of these starts a new game.</p>
+<div class="portada ver" id="portada">
+  <div class="port-caja">
+    <div class="port-marca">
+      <svg class="port-logo" viewBox="0 0 100 100" aria-hidden="true"><use href="#pz-wN"/></svg>
+      <div class="port-nombre">x<span>chess</span></div>
+      <div class="port-bajada">Play the computer, or two players on one phone.</div>
+    </div>
 
-  <div class="grupo">
+    <button class="bt grande fuerte" id="btSeguir">Continue game</button>
+
+<div class="grupo">
     <div class="et">Mode</div>
     <div class="ops dos">
       <div class="op" role="radio" data-modo="maquina"><div class="t">Vs. computer</div><div class="d">You against the engine</div></div>
@@ -628,12 +663,10 @@
     </div>
   </div>
 
-  <div class="botones" style="grid-template-columns:1fr 1fr">
-    <button class="bt" id="btSeguir">Keep playing</button>
-    <button class="bt fuerte" id="btEmpezar">Start</button>
+    <button class="bt grande fuerte" id="btEmpezar">New game</button>
+    <div class="pie" id="pieVer"></div>
   </div>
-  <div class="pie" id="pieVer"></div>
-</div></div>
+</div>
 
 <div class="velo" id="veloCorona"><div class="hoja">
   <h2>Promotion</h2>
@@ -1248,7 +1281,7 @@ const NIVELES = {
 /* ============================================================================
    INTERFAZ. El nucleo de arriba ya sabe de ajedrez; esto solo lo dibuja.
    ========================================================================== */
-const VERSION = "MK 1.8";
+const VERSION = "MK 1.9";
 const K_ESTADO = "xchess.partida";
 const K_TEMA   = "xchess.tema";
 
@@ -1851,7 +1884,6 @@ function nueva(){
   sincronizar();
   pintarTodo();
   guardar();
-  if (!soyHumano(pos.turno)) setTimeout(pedirMaquina, 420);
 }
 
 function deshacerJugada(){
@@ -1884,6 +1916,24 @@ function deshacerJugada(){
 function abrir(id){ $(id).classList.add("ver"); }
 function cerrar(id){ $(id).classList.remove("ver"); }
 
+/* La portada es la primera pantalla. El tablero recien aparece cuando se
+   entra a jugar, y el menu de arriba vuelve aca sin perder la partida. */
+function irAPortada(){
+  pintarMenu();
+  $("portada").classList.add("ver");
+  $("app").classList.add("oculto");
+}
+
+function irAlJuego(){
+  $("portada").classList.remove("ver");
+  $("app").classList.remove("oculto");
+  /* Con el tablero oculto no se puede medir: el ancho se calcula recien
+     ahora, ya visible. */
+  redimensionar();
+  pintarTodo();
+  if (!fin && !revision && !soyHumano(pos.turno)) setTimeout(pedirMaquina, 420);
+}
+
 function pintarMenu(){
   for (const el of document.querySelectorAll("[data-modo]"))
     el.setAttribute("aria-checked", el.dataset.modo === conf.modo);
@@ -1898,6 +1948,10 @@ function pintarMenu(){
   $("grColor").style.display = conf.modo === "maquina" ? "" : "none";
   $("grGirar").style.display = conf.modo === "dos" ? "" : "none";
   $("pieVer").textContent = "xchess " + VERSION;
+  /* Sin jugadas hechas, continuar y empezar serian lo mismo. */
+  const hayPartida = historial && historial.mvs.length > 0;
+  $("btSeguir").style.display = hayPartida ? "" : "none";
+  $("btEmpezar").textContent = hayPartida ? "New game" : "Start game";
 }
 
 /* -------------------------------------------------------------- eventos */
@@ -1996,7 +2050,7 @@ elTablero.addEventListener("click", e => {
   tocar(+c.dataset.s);
 });
 
-$("btMenu").addEventListener("click", () => { pintarMenu(); abrir("veloMenu"); });
+$("btMenu").addEventListener("click", irAPortada);
 $("btTema").addEventListener("click", () => {
   const ahora = document.documentElement.dataset.tema;
   const oscuroSistema = matchMedia("(prefers-color-scheme:dark)").matches;
@@ -2014,7 +2068,7 @@ $("btGirar").addEventListener("click", () => {
   pintarTodo();
   guardar();
 });
-$("btNueva").addEventListener("click", () => { pintarMenu(); abrir("veloMenu"); });
+$("btNueva").addEventListener("click", irAPortada);
 
 for (const el of document.querySelectorAll("[data-modo]"))
   el.addEventListener("click", () => { conf.modo = el.dataset.modo; pintarMenu(); });
@@ -2047,10 +2101,10 @@ addEventListener("keydown", e => {
   if (e.key === "Escape")     salirRevision();
 });
 
-$("btSeguir").addEventListener("click", () => { cerrar("veloMenu"); guardar(); });
-$("btEmpezar").addEventListener("click", () => { cerrar("veloMenu"); nueva(); });
+$("btSeguir").addEventListener("click", () => { guardar(); irAlJuego(); });
+$("btEmpezar").addEventListener("click", () => { nueva(); irAlJuego(); });
 $("btVerFin").addEventListener("click", () => cerrar("veloFin"));
-$("btOtra").addEventListener("click", () => { cerrar("veloFin"); pintarMenu(); abrir("veloMenu"); });
+$("btOtra").addEventListener("click", () => { cerrar("veloFin"); irAPortada(); });
 
 $("opsCorona").addEventListener("click", e => {
   const b = e.target.closest("button");
@@ -2062,9 +2116,7 @@ $("opsCorona").addEventListener("click", e => {
   aplicar(mv);
 });
 
-for (const id of ["veloMenu", "veloFin"]){
-  $(id).addEventListener("click", e => { if (e.target.id === id) cerrar(id); });
-}
+$("veloFin").addEventListener("click", e => { if (e.target.id === "veloFin") cerrar("veloFin"); });
 
 /* ------------------------------------------------------------------ inicio */
 try {
@@ -2080,11 +2132,10 @@ if (cargar()){
   armarCasillas();
   sincronizar();
   pintarTodo();
-  if (!fin && !soyHumano(pos.turno)) setTimeout(pedirMaquina, 500);
 } else {
   nueva();
-  setTimeout(() => { pintarMenu(); abrir("veloMenu"); }, 350);
 }
+irAPortada();
 
 if ("serviceWorker" in navigator)
   addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));

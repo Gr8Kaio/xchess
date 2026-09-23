@@ -1,6 +1,6 @@
 # xchess
 
-*MK 1.8*
+*MK 1.9*
 
 Ajedrez para el telefono (la interfaz esta en ingles). Contra la maquina o dos jugadores pasando el aparato.
 
@@ -12,6 +12,9 @@ no hay servidor ni cuenta ni nada que registrar.
 
 ## Que hace
 
+- **Pantalla de inicio**: lo primero que se ve es el menu, con el modo, el
+  nivel, el color y los ajustes. Si hay partida empezada aparece arriba
+  "Continue game"; el boton de menu del tablero vuelve aca sin perderla.
 - **Contra la maquina**, en tres niveles, eligiendo blancas, negras o al azar.
 - **Dos jugadores** en el mismo telefono: el tablero se da vuelta solo despues
   de cada jugada para que cada uno vea sus piezas abajo.
