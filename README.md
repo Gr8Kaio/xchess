@@ -1,6 +1,6 @@
 # xchess
 
-*MK 1.4*
+*MK 1.5*
 
 Ajedrez para el telefono (la interfaz esta en ingles). Contra la maquina o dos jugadores pasando el aparato.
 
@@ -87,6 +87,18 @@ Despues estan los tests de notacion, finales de partida, reglas puntuales
 el mate en una, que se coma lo que cuelga, que no muerda un peon envenenado) y
 uno que arma el Worker igual que la app para confirmar que ese pegote compila y
 devuelve una jugada legal.
+
+## Piezas
+
+El juego de piezas lo armo franco aparte, en SVG sobre un `viewBox` de 100x100
+con la misma linea de piso para las doce. Cada archivo trae su degrade con id
+propio (`wN-fill`, `bN-fill`, ...), asi que las doce entran en el mismo
+documento sin pisarse. Los colores vienen fijos adentro del dibujo: no siguen
+el tema, igual que el tablero.
+
+Al meterlas se les saca el bloque `<metadata>` de procedencia (C2PA): son unos
+8 KB por pieza que adentro de la pagina no aportan nada. Las doce pasan de
+113 KB a 23 KB.
 
 ## Estructura
 
