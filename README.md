@@ -1,6 +1,6 @@
 # xchess
 
-*MK 1.3*
+*MK 1.4*
 
 Ajedrez para el telefono (la interfaz esta en ingles). Contra la maquina o dos jugadores pasando el aparato.
 
@@ -95,19 +95,3 @@ index.html   la app entera: reglas, motor e interfaz
 sw.js        service worker, para que abra sin señal
 test.mjs     perft y tests del nucleo
 ```
-
-## Creditos
-
-Las piezas son el juego de **Colin M.L. Burnett ("Cburnett")**, el Staunton
-abierto que usan Wikipedia y lichess:
-
-- Origen: <https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces>
-- Licencia: **CC BY-SA 3.0** (el autor tambien las ofrece bajo GFDL y BSD)
-
-Los dibujos van tal cual salvo por los colores: los `#fff` y `#000` del original
-se cambiaron por variables CSS (`--pz-fill`, `--pz-line`, `--pz-det`) para que
-las piezas sigan el tema claro/oscuro. Al ser CC BY-SA, esa parte del
-`index.html` queda bajo la misma licencia y la atribucion tiene que viajar con
-cualquier copia.
-
-El resto del proyecto (motor, interfaz, tests) es propio.
