@@ -1248,7 +1248,7 @@ const NIVELES = {
 /* ============================================================================
    INTERFAZ. El nucleo de arriba ya sabe de ajedrez; esto solo lo dibuja.
    ========================================================================== */
-const VERSION = "MK 1.6";
+const VERSION = "MK 1.7";
 const K_ESTADO = "xchess.partida";
 const K_TEMA   = "xchess.tema";
 
@@ -1414,14 +1414,25 @@ const miColor = () => (conf.colorReal || conf.color) === "n" ? NEGRO : BLANCO;
 const soyHumano = c => conf.modo === "dos" || c === miColor();
 
 /* ------------------------------------------------------------ dibujar SVG */
+/* Alto de tinta de cada dibujo, medido renderizando las piezas sueltas sobre
+   un fondo plano y sacando el bounding box (blancas y negras dan igual). El
+   piso es comun a las doce. */
+const PISO = 94.5;
+const ALTO = { P: 48.5, N: 63.0, B: 69.5, R: 66.0, Q: 75.0, K: 91.0 };
+const ESCALA = {};
+for (const k in ALTO) ESCALA[k] = +(ALTO.B / ALTO[k]).toFixed(4);
+
 function svgPieza(p){
   const L = ["", "P", "N", "B", "R", "Q", "K"][tipo(p)];
-  /* Sin escalar. Medido sobre los doce dibujos: el rey arranca en y=3.5, asi
-     que ya ocupa el 91% de lo alto de su casilla y cualquier agrandado lo
-     saca del viewBox, donde el SVG lo recorta (la cruz quedaba cortada al
-     ras). El maximo que entraria para todas es 1.039, que no vale la pena.
-     Que el peon se vea mas bajo no es un problema: un peon es mas bajo. */
-  return `<svg viewBox="0 0 100 100"><use href="#pz-${colorDe(p) === BLANCO ? "w" : "b"}${L}"/></svg>`;
+  /* Todas las piezas a la misma altura que el alfil. El factor sale de las
+     alturas medidas de los dibujos y el escalado toma como centro la linea
+     de piso, asi ninguna se despega del suelo. Ojo: al ser escalado parejo,
+     el peon (que era el mas bajo) tambien se ensancha. */
+  const e = ESCALA[L];
+  return `<svg viewBox="0 0 100 100">` +
+    (e === 1 ? "" : `<g transform="translate(50 ${PISO}) scale(${e}) translate(-50 -${PISO})">`) +
+    `<use href="#pz-${colorDe(p) === BLANCO ? "w" : "b"}${L}"/>` +
+    (e === 1 ? "" : `</g>`) + `</svg>`;
 }
 
 /* Fila y columna en pantalla, contemplando el tablero dado vuelta. */

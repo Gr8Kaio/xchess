@@ -1,6 +1,6 @@
 # xchess
 
-*MK 1.6*
+*MK 1.7*
 
 Ajedrez para el telefono (la interfaz esta en ingles). Contra la maquina o dos jugadores pasando el aparato.
 
@@ -100,11 +100,27 @@ Al meterlas se les saca el bloque `<metadata>` de procedencia (C2PA): son unos
 8 KB por pieza que adentro de la pagina no aportan nada. Las doce pasan de
 113 KB a 23 KB.
 
-**No agrandarlas.** Medido sobre los doce dibujos, el rey arranca en `y=3.5`:
-ya ocupa el 91% de lo alto de su casilla, y cualquier escalado lo saca del
-`viewBox`, donde el SVG lo recorta (la cruz queda cortada al ras). El maximo
-que entraria para todas es 1.039. Que el peon se vea mas bajo que el rey no es
-un problema de tamaño: un peon es mas bajo.
+Las doce se llevan **a la misma altura que el alfil** (69,5 unidades), cada una
+escalada desde la linea de piso comun. Los factores salen de las alturas
+medidas, no a ojo:
+
+| pieza  | alto original | factor |
+|--------|---------------|--------|
+| peon   | 48,5          | 1,433  |
+| caballo| 63,0          | 1,103  |
+| torre  | 66,0          | 1,053  |
+| alfil  | 69,5          | 1,000  |
+| dama   | 75,0          | 0,927  |
+| rey    | 91,0          | 0,764  |
+
+Al ser escalado parejo, la altura pareja se paga en el ancho: el peon queda el
+mas ancho del tablero (52,5) y el rey el mas angosto (33,5).
+
+**Ojo con escalar de mas.** El rey sin escalar arranca en `y=3.5`, asi que
+cualquier agrandado lo saca del `viewBox` y el SVG lo recorta al ras (paso en
+MK 1.5: la cruz quedaba cortada). Para medir el alto real conviene renderizar
+cada pieza sola con `overflow:visible` sobre un fondo plano y sacar el
+bounding box, en vez de estimarlo del path.
 
 ## Estructura
 
