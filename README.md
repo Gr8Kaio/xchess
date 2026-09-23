@@ -1,6 +1,6 @@
 # xchess
 
-*MK 1.2*
+*MK 1.3*
 
 Ajedrez para el telefono (la interfaz esta en ingles). Contra la maquina o dos jugadores pasando el aparato.
 
@@ -27,8 +27,10 @@ no hay servidor ni cuenta ni nada que registrar.
 - **Repaso de la partida**: tocar cualquier jugada de la lista lleva el tablero
   a esa posicion, con flechas para ir y venir. Es solo para mirar; mientras se
   repasa no se puede jugar, y la partida de verdad no se toca.
-- **Sonido**: un golpe seco al mover y uno mas grave al comer, sintetizados con
-  Web Audio. Sin archivos: la app sigue siendo un solo HTML.
+- **Sonido**: un golpe seco al mover, uno mas grave al comer y dos golpes que
+  bajan al dar mate, sintetizados con Web Audio. Sin archivos: la app sigue
+  siendo un solo HTML.
+- Al mate, **el rey se acuesta** sobre el tablero y su casilla late en rojo.
 - Deshacer, girar el tablero a mano, tema claro y oscuro.
 - Se mueve tocando o arrastrando; las flechas del teclado repasan la partida.
 - La partida se guarda sola: si cerras la app, seguis donde estabas.
@@ -93,3 +95,19 @@ index.html   la app entera: reglas, motor e interfaz
 sw.js        service worker, para que abra sin señal
 test.mjs     perft y tests del nucleo
 ```
+
+## Creditos
+
+Las piezas son el juego de **Colin M.L. Burnett ("Cburnett")**, el Staunton
+abierto que usan Wikipedia y lichess:
+
+- Origen: <https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces>
+- Licencia: **CC BY-SA 3.0** (el autor tambien las ofrece bajo GFDL y BSD)
+
+Los dibujos van tal cual salvo por los colores: los `#fff` y `#000` del original
+se cambiaron por variables CSS (`--pz-fill`, `--pz-line`, `--pz-det`) para que
+las piezas sigan el tema claro/oscuro. Al ser CC BY-SA, esa parte del
+`index.html` queda bajo la misma licencia y la atribucion tiene que viajar con
+cualquier copia.
+
+El resto del proyecto (motor, interfaz, tests) es propio.
