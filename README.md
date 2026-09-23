@@ -1,6 +1,6 @@
 # xchess
 
-*MK 1.7*
+*MK 1.8*
 
 Ajedrez para el telefono (la interfaz esta en ingles). Contra la maquina o dos jugadores pasando el aparato.
 
@@ -100,27 +100,32 @@ Al meterlas se les saca el bloque `<metadata>` de procedencia (C2PA): son unos
 8 KB por pieza que adentro de la pagina no aportan nada. Las doce pasan de
 113 KB a 23 KB.
 
-Las doce se llevan **a la misma altura que el alfil** (69,5 unidades), cada una
-escalada desde la linea de piso comun. Los factores salen de las alturas
-medidas, no a ojo:
+Las doce se emparejan **por ancho** (39 unidades), cada una escalada desde la
+linea de piso comun. Los factores salen de los anchos medidos, no a ojo:
 
-| pieza  | alto original | factor |
-|--------|---------------|--------|
-| peon   | 48,5          | 1,433  |
-| caballo| 63,0          | 1,103  |
-| torre  | 66,0          | 1,053  |
-| alfil  | 69,5          | 1,000  |
-| dama   | 75,0          | 0,927  |
-| rey    | 91,0          | 0,764  |
+| pieza   | ancho original | factor | alto final |
+|---------|----------------|--------|------------|
+| peon    | 36,5           | 1,069  | 52,0       |
+| caballo | 40,5           | 0,963  | 60,5       |
+| alfil   | 38,5           | 1,013  | 70,5       |
+| torre   | 42,5           | 0,918  | 60,5       |
+| dama    | 42,5           | 0,918  | 69,0       |
+| rey     | 43,5           | 0,897  | 81,5       |
 
-Al ser escalado parejo, la altura pareja se paga en el ancho: el peon queda el
-mas ancho del tablero (52,5) y el rey el mas angosto (33,5).
+**Por ancho y no por alto.** Emparejar el alto obliga a estirar al peon, que es
+el mas chato, y termina siendo la pieza mas ancha del tablero mientras el rey
+queda la mas angosta: justo al reves de lo que uno espera (paso en MK 1.7).
+Con el ancho parejo las seis pesan lo mismo en la casilla y el alto queda como
+tiene que quedar, peon el mas bajo y rey el mas alto.
 
-**Ojo con escalar de mas.** El rey sin escalar arranca en `y=3.5`, asi que
-cualquier agrandado lo saca del `viewBox` y el SVG lo recorta al ras (paso en
-MK 1.5: la cruz quedaba cortada). Para medir el alto real conviene renderizar
-cada pieza sola con `overflow:visible` sobre un fondo plano y sacar el
-bounding box, en vez de estimarlo del path.
+El ancho objetivo lo manda el rey: es el mas ancho y el mas alto a la vez, asi
+que es el primero que se pega al techo. Con 39 le quedan 13 unidades de aire
+arriba. Si se sube mas, el rey se sale del `viewBox` y el SVG **lo recorta al
+ras** (paso en MK 1.5: la cruz quedaba cortada).
+
+Para medir de verdad conviene renderizar cada pieza sola con `overflow:visible`
+sobre un fondo plano y sacar el bounding box con PIL, en vez de estimarlo del
+path.
 
 ## Estructura
 

@@ -1248,7 +1248,7 @@ const NIVELES = {
 /* ============================================================================
    INTERFAZ. El nucleo de arriba ya sabe de ajedrez; esto solo lo dibuja.
    ========================================================================== */
-const VERSION = "MK 1.7";
+const VERSION = "MK 1.8";
 const K_ESTADO = "xchess.partida";
 const K_TEMA   = "xchess.tema";
 
@@ -1414,20 +1414,29 @@ const miColor = () => (conf.colorReal || conf.color) === "n" ? NEGRO : BLANCO;
 const soyHumano = c => conf.modo === "dos" || c === miColor();
 
 /* ------------------------------------------------------------ dibujar SVG */
-/* Alto de tinta de cada dibujo, medido renderizando las piezas sueltas sobre
-   un fondo plano y sacando el bounding box (blancas y negras dan igual). El
-   piso es comun a las doce. */
+/* Tinta de cada dibujo, medida renderizando las piezas sueltas sobre un fondo
+   plano y sacando el bounding box (blancas y negras dan igual). El piso es
+   comun a las doce.
+
+   Se empareja el ANCHO, no el alto. Emparejar el alto obliga a estirar al
+   peon, que es el mas chato, y termina siendo la pieza mas ancha del tablero
+   mientras el rey queda el mas angosto: justo al reves de lo que uno espera.
+   Con el ancho parejo las seis pesan lo mismo en la casilla y el alto queda
+   como tiene que quedar, peon el mas bajo y rey el mas alto.
+
+   El ancho objetivo lo manda el rey: es el mas ancho y el mas alto a la vez,
+   asi que es el que primero se pega al techo. Con 39 le quedan casi 13
+   unidades de aire arriba. */
 const PISO = 94.5;
-const ALTO = { P: 48.5, N: 63.0, B: 69.5, R: 66.0, Q: 75.0, K: 91.0 };
+const ANCHO = { P: 36.5, N: 40.5, B: 38.5, R: 42.5, Q: 42.5, K: 43.5 };
+const ANCHO_META = 39;
 const ESCALA = {};
-for (const k in ALTO) ESCALA[k] = +(ALTO.B / ALTO[k]).toFixed(4);
+for (const k in ANCHO) ESCALA[k] = +(ANCHO_META / ANCHO[k]).toFixed(4);
 
 function svgPieza(p){
   const L = ["", "P", "N", "B", "R", "Q", "K"][tipo(p)];
-  /* Todas las piezas a la misma altura que el alfil. El factor sale de las
-     alturas medidas de los dibujos y el escalado toma como centro la linea
-     de piso, asi ninguna se despega del suelo. Ojo: al ser escalado parejo,
-     el peon (que era el mas bajo) tambien se ensancha. */
+  /* El escalado toma como centro la linea de piso, asi ninguna se despega
+     del suelo al cambiar de tamano. */
   const e = ESCALA[L];
   return `<svg viewBox="0 0 100 100">` +
     (e === 1 ? "" : `<g transform="translate(50 ${PISO}) scale(${e}) translate(-50 -${PISO})">`) +
