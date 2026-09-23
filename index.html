@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="xchess">
-<meta name="description" content="Ajedrez: contra la maquina o dos jugadores pasando el telefono.">
+<meta name="description" content="Chess: play the computer, or two players passing the phone.">
 <link rel="icon" href="data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'><rect%20width='64'%20height='64'%20rx='14'%20fill='%233B2A1C'/><rect%20x='8'%20y='8'%20width='24'%20height='24'%20fill='%23E8D5B0'/><rect%20x='32'%20y='32'%20width='24'%20height='24'%20fill='%23E8D5B0'/><rect%20x='32'%20y='8'%20width='24'%20height='24'%20fill='%23A9784E'/><rect%20x='8'%20y='32'%20width='24'%20height='24'%20fill='%23A9784E'/></svg>">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href='data:application/manifest+json,{"name":"xchess","short_name":"xchess","lang":"es","start_url":".","display":"standalone","orientation":"portrait","background_color":"%23F5F1E8","theme_color":"%233B2A1C"}'>
+<link rel="manifest" href='data:application/manifest+json,{"name":"xchess","short_name":"xchess","lang":"en","start_url":".","display":"standalone","orientation":"portrait","background_color":"%23F5F1E8","theme_color":"%233B2A1C"}'>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -133,7 +133,8 @@
     width:100%; aspect-ratio:1;
     border-radius:8px;
     box-shadow:0 0 0 5px var(--marco), 0 2px 4px rgba(0,0,0,.18), 0 22px 44px -26px rgba(0,0,0,.6);
-    touch-action:manipulation;
+    /* none, no manipulation: si no, arrastrar una pieza hamaca la pagina. */
+    touch-action:none;
   }
   .casillas{position:absolute; inset:0; border-radius:8px; overflow:hidden; display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);}
   .cas{position:relative;}
@@ -160,6 +161,7 @@
     transform:translate(-50%,-50%); border-radius:50%;
     background:rgba(30,22,14,.3);
   }
+  .mk.sobre{box-shadow:inset 0 0 0 4px rgba(201,146,43,.95);}
   .mk.come::before{
     content:''; position:absolute; inset:7%; border-radius:50%;
     border:4.5px solid rgba(30,22,14,.3); background:transparent;
@@ -174,6 +176,9 @@
   .pz svg{width:100%; height:100%; display:block; filter:drop-shadow(0 1.5px 1.5px rgba(0,0,0,.28));}
   .pz.alza{z-index:5;}
   .pz.sale{transition:opacity .16s; opacity:0;}
+  /* Mientras va agarrada sigue al dedo sin transicion, si no va siempre atras. */
+  .pz.arrastrando{transition:none; z-index:20;}
+  .pz.arrastrando svg{filter:drop-shadow(0 7px 9px rgba(0,0,0,.45));}
   .tablero.quieto .pz{transition:none;}
 
   /* ---------- barra de abajo ---------- */
@@ -339,7 +344,7 @@
 <div id="app">
   <div class="top">
     <div class="marca">x<span>chess</span></div>
-    <div class="ico" id="btTema" role="button" aria-label="Tema">
+    <div class="ico" id="btTema" role="button" aria-label="Theme">
       <svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
     </div>
     <div class="ico" id="btMenu" role="button" aria-label="Menu">
@@ -351,7 +356,7 @@
     <div class="mesa" id="mesa">
       <div class="jug" id="jugArriba">
         <div class="punto"></div>
-        <div class="nom">Negras</div>
+        <div class="nom">Black</div>
         <div class="cap" id="capArriba"></div>
         <div class="vent" id="ventArriba"></div>
       </div>
@@ -364,7 +369,7 @@
 
       <div class="jug" id="jugAbajo">
         <div class="punto"></div>
-        <div class="nom">Blancas</div>
+        <div class="nom">White</div>
         <div class="cap" id="capAbajo"></div>
         <div class="vent" id="ventAbajo"></div>
       </div>
@@ -376,74 +381,74 @@
     <div class="botones">
       <button class="bt" id="btDeshacer">
         <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 010 10h-4"/></svg>
-        Deshacer
+        Undo
       </button>
       <button class="bt" id="btGirar">
         <svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 00-4 4v2"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 004-4v-2"/></svg>
-        Girar
+        Flip
       </button>
       <button class="bt fuerte" id="btNueva">
         <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-        Nueva
+        New
       </button>
     </div>
   </div>
 </div>
 
 <div class="velo" id="veloMenu"><div class="hoja">
-  <h2>Partida</h2>
-  <p class="sub">Los cambios arrancan una partida nueva.</p>
+  <h2>Game</h2>
+  <p class="sub">Changing any of these starts a new game.</p>
 
   <div class="grupo">
-    <div class="et">Modo</div>
+    <div class="et">Mode</div>
     <div class="ops dos">
-      <div class="op" role="radio" data-modo="maquina"><div class="t">Contra la maquina</div><div class="d">Vos contra el motor</div></div>
-      <div class="op" role="radio" data-modo="dos"><div class="t">Dos jugadores</div><div class="d">Pasando el telefono</div></div>
+      <div class="op" role="radio" data-modo="maquina"><div class="t">Vs. computer</div><div class="d">You against the engine</div></div>
+      <div class="op" role="radio" data-modo="dos"><div class="t">Two players</div><div class="d">Passing the phone</div></div>
     </div>
   </div>
 
   <div class="grupo" id="grNivel">
-    <div class="et">Nivel</div>
+    <div class="et">Level</div>
     <div class="ops tres">
-      <div class="op" role="radio" data-nivel="facil"><div class="t">Facil</div><div class="d">Regala piezas</div></div>
-      <div class="op" role="radio" data-nivel="normal"><div class="t">Normal</div><div class="d">Juega decente</div></div>
-      <div class="op" role="radio" data-nivel="dificil"><div class="t">Dificil</div><div class="d">Castiga errores</div></div>
+      <div class="op" role="radio" data-nivel="facil"><div class="t">Easy</div><div class="d">Gives pieces away</div></div>
+      <div class="op" role="radio" data-nivel="normal"><div class="t">Normal</div><div class="d">Plays a decent game</div></div>
+      <div class="op" role="radio" data-nivel="dificil"><div class="t">Hard</div><div class="d">Punishes mistakes</div></div>
     </div>
   </div>
 
   <div class="grupo" id="grColor">
-    <div class="et">Tus piezas</div>
+    <div class="et">Your pieces</div>
     <div class="ops tres">
-      <div class="op" role="radio" data-color="b"><div class="t">Blancas</div><div class="d">Arrancas vos</div></div>
-      <div class="op" role="radio" data-color="n"><div class="t">Negras</div><div class="d">Arranca el motor</div></div>
-      <div class="op" role="radio" data-color="azar"><div class="t">Al azar</div><div class="d">Que decida el sorteo</div></div>
+      <div class="op" role="radio" data-color="b"><div class="t">White</div><div class="d">You move first</div></div>
+      <div class="op" role="radio" data-color="n"><div class="t">Black</div><div class="d">Engine moves first</div></div>
+      <div class="op" role="radio" data-color="azar"><div class="t">Random</div><div class="d">Let the toss decide</div></div>
     </div>
   </div>
 
   <div class="grupo" id="grGirar">
     <div class="fila-sw" id="swGirar" role="switch">
-      <div><div class="t">Girar el tablero</div><div class="d">Cada jugador ve sus piezas abajo</div></div>
+      <div><div class="t">Flip the board</div><div class="d">Each player sees their pieces at the bottom</div></div>
       <div class="sw"></div>
     </div>
   </div>
 
   <div class="grupo">
     <div class="fila-sw" id="swPistas" role="switch">
-      <div><div class="t">Marcar jugadas legales</div><div class="d">Puntos en las casillas donde podes ir</div></div>
+      <div><div class="t">Show legal moves</div><div class="d">Dots on the squares you can move to</div></div>
       <div class="sw"></div>
     </div>
   </div>
 
   <div class="botones" style="grid-template-columns:1fr 1fr">
-    <button class="bt" id="btSeguir">Seguir jugando</button>
-    <button class="bt fuerte" id="btEmpezar">Empezar</button>
+    <button class="bt" id="btSeguir">Keep playing</button>
+    <button class="bt fuerte" id="btEmpezar">Start</button>
   </div>
   <div class="pie" id="pieVer"></div>
 </div></div>
 
 <div class="velo" id="veloCorona"><div class="hoja">
-  <h2>Coronacion</h2>
-  <p class="sub">Elegi en que se convierte el peon.</p>
+  <h2>Promotion</h2>
+  <p class="sub">Pick what the pawn becomes.</p>
   <div class="coronar" id="opsCorona"></div>
 </div></div>
 
@@ -453,8 +458,8 @@
     <div class="mot" id="finMot"></div>
   </div>
   <div class="botones" style="grid-template-columns:1fr 1fr; margin-top:18px">
-    <button class="bt" id="btVerFin">Ver tablero</button>
-    <button class="bt fuerte" id="btOtra">Otra partida</button>
+    <button class="bt" id="btVerFin">See the board</button>
+    <button class="bt fuerte" id="btOtra">New game</button>
   </div>
 </div></div>
 
@@ -1054,7 +1059,7 @@ const NIVELES = {
 /* ============================================================================
    INTERFAZ. El nucleo de arriba ya sabe de ajedrez; esto solo lo dibuja.
    ========================================================================== */
-const VERSION = "v1.0.0";
+const VERSION = "MK 1.1";
 const K_ESTADO = "xchess.partida";
 const K_TEMA   = "xchess.tema";
 
@@ -1253,8 +1258,8 @@ function pintarCapturadas(){
   pinta($("capAbajo"),  $("ventAbajo"),  rival(arribaEs));
 
   const nomDe = c => {
-    if (conf.modo === "dos") return c === BLANCO ? "Blancas" : "Negras";
-    return c === miColor() ? "Vos" : "Maquina";
+    if (conf.modo === "dos") return c === BLANCO ? "White" : "Black";
+    return c === miColor() ? "You" : "Computer";
   };
   $("jugArriba").querySelector(".nom").textContent = nomDe(arribaEs);
   $("jugAbajo").querySelector(".nom").textContent  = nomDe(rival(arribaEs));
@@ -1270,7 +1275,7 @@ function pintarCapturadas(){
 function pintarJugadas(){
   const el = $("jugadas");
   if (!historial.san.length){
-    el.innerHTML = '<div class="vacio">Sin jugadas todavia.</div>';
+    el.innerHTML = '<div class="vacio">No moves yet.</div>';
     return;
   }
   let html = "";
@@ -1327,34 +1332,42 @@ function girarSiHaceFalta(){
   pintarTodo();
 }
 
-function tocar(s){
-  if (fin || pensando || coronaPend) return;
-  if (!soyHumano(pos.turno)) return;
+const puedeJugar = () => !fin && !pensando && !coronaPend && soyHumano(pos.turno);
+const miaEn = s => { const p = pos.t[s]; return p && colorDe(p) === pos.turno; };
 
-  if (destinos.has(s)){
-    const opciones = destinos.get(s).mvs;
-    if (opciones.length > 1){ pedirCorona(opciones); return; }
-    aplicar(opciones[0]);
-    return;
+function seleccionar(s){
+  sel = s;
+  destinos = new Map();
+  for (const mv of legales(pos)){
+    if (mvDe(mv) !== s) continue;
+    const a = mvA(mv);
+    if (!destinos.has(a)) destinos.set(a, { mvs: [], paso: !!(mvF(mv) & F_PASO) });
+    destinos.get(a).mvs.push(mv);
   }
+  pintarMarcas();
+}
 
-  const p = pos.t[s];
-  if (p && colorDe(p) === pos.turno){
-    if (sel === s){ sel = -1; destinos = new Map(); pintarMarcas(); return; }
-    sel = s;
-    destinos = new Map();
-    for (const mv of legales(pos)){
-      if (mvDe(mv) !== s) continue;
-      const a = mvA(mv);
-      if (!destinos.has(a)) destinos.set(a, { mvs: [], paso: !!(mvF(mv) & F_PASO) });
-      destinos.get(a).mvs.push(mv);
-    }
-    pintarMarcas();
-    return;
-  }
-
+function soltarSeleccion(){
   sel = -1; destinos = new Map();
   pintarMarcas();
+}
+
+/* Lleva la pieza elegida a `a`. Si hay varias jugadas para esa casilla es una
+   coronacion, y hay que preguntar antes. */
+function llevarA(a){
+  const opciones = destinos.get(a).mvs;
+  if (opciones.length > 1){ pedirCorona(opciones); return; }
+  aplicar(opciones[0]);
+}
+
+function tocar(s){
+  if (!puedeJugar()) return;
+  if (destinos.has(s)){ llevarA(s); return; }
+  if (miaEn(s)){
+    if (sel === s) soltarSeleccion(); else seleccionar(s);
+    return;
+  }
+  soltarSeleccion();
 }
 
 function pedirCorona(opciones){
@@ -1388,7 +1401,7 @@ function arrancarMotor(){
   };
   motor.onerror = () => {
     pensando = false;
-    avisar("El motor se cayo; jugando al azar");
+    avisar("Engine failed; playing at random");
     const ms = legales(pos);
     if (ms.length) aplicar(ms[Math.floor(Math.random() * ms.length)]);
   };
@@ -1406,11 +1419,11 @@ function pedirMaquina(){
 
 /* ------------------------------------------------------------------- final */
 const MOTIVOS = {
-  mate:       g => `Jaque mate de las ${g}.`,
-  ahogado:    () => "Rey ahogado: no hay jugada legal y no hay jaque.",
-  cincuenta:  () => "Cincuenta jugadas sin comer ni mover un peon.",
-  repeticion: () => "La misma posicion se repitio tres veces.",
-  material:   () => "No queda material para dar mate.",
+  mate:       g => `Checkmate by ${g}.`,
+  ahogado:    () => "Stalemate: no legal move, and no check.",
+  cincuenta:  () => "Fifty moves with no capture and no pawn move.",
+  repeticion: () => "The same position came up three times.",
+  material:   () => "Not enough material left to mate.",
 };
 
 function terminar(est){
@@ -1418,12 +1431,12 @@ function terminar(est){
   const ganador = est === "mate" ? rival(pos.turno) : 0;
   let res, mot;
   if (est === "mate"){
-    const nom = ganador === BLANCO ? "blancas" : "negras";
-    if (conf.modo === "maquina") res = ganador === miColor() ? "Ganaste" : "Perdiste";
-    else res = "Ganan las " + nom;
+    const nom = ganador === BLANCO ? "White" : "Black";
+    if (conf.modo === "maquina") res = ganador === miColor() ? "You win" : "You lose";
+    else res = nom + " wins";
     mot = MOTIVOS.mate(nom);
   } else {
-    res = "Tablas";
+    res = "Draw";
     mot = MOTIVOS[est]();
   }
   $("finRes").textContent = res;
@@ -1526,7 +1539,96 @@ function pintarMenu(){
 }
 
 /* -------------------------------------------------------------- eventos */
+/* ------------------------------------------------------- tocar y arrastrar
+   Las dos formas de mover conviven sobre la misma seleccion: tocar origen y
+   despues destino, o arrastrar la pieza de una a la otra. El arrastre recien
+   empieza cuando el dedo se corrio de verdad; antes de eso sigue siendo un
+   toque, asi que apoyar el dedo y levantarlo nunca mueve nada sin querer. */
+const ARRANQUE = 6;              // pixeles que hay que correrse para arrastrar
+let arrastre = null, ignorarClick = false, sobre = -1;
+
+function casillaEn(x, y){
+  const r = elTablero.getBoundingClientRect();
+  const vc = Math.floor((x - r.left) / (r.width / 8));
+  const vf = Math.floor((y - r.top) / (r.height / 8));
+  if (vc < 0 || vc > 7 || vf < 0 || vf > 7) return -1;
+  return (girado ? 7 - vf : vf) * 16 + (girado ? 7 - vc : vc);
+}
+
+/* Con el dedo la pieza va un poco por encima del punto que se toca: si va
+   centrada, el pulgar la tapa justo cuando hay que ver que se esta moviendo.
+   La casilla que vale sigue siendo la de abajo del dedo, y se ve marcada. */
+function pegarAlDedo(el, x, y, tactil){
+  const r = elTablero.getBoundingClientRect();
+  const lado = r.width / 8;
+  const alza = tactil ? lado * .55 : 0;
+  el.style.transform =
+    `translate(${x - r.left - lado / 2}px, ${y - r.top - lado / 2 - alza}px) scale(1.12)`;
+}
+
+function marcarSobre(s){
+  if (s === sobre) return;
+  sobre = s;
+  for (const m of elMarcas.children) m.classList.toggle("sobre", +m.dataset.s === s);
+}
+
+elTablero.addEventListener("pointerdown", e => {
+  ignorarClick = false;
+  if (!puedeJugar()) return;
+  const c = e.target.closest("[data-s]");
+  if (!c) return;
+  const s = +c.dataset.s;
+  if (destinos.has(s)) return;              // es un destino: lo resuelve el toque
+  if (!miaEn(s)) return;
+  const el = piezasEn.get(s);
+  if (!el) return;
+
+  /* Al apoyar el dedo ya se ven las jugadas. Como el click que viene despues
+     desharia esa seleccion recien hecha, se lo ignora. */
+  if (sel !== s){ seleccionar(s); ignorarClick = true; }
+  arrastre = { s, el, x0: e.clientX, y0: e.clientY, vivo: false, id: e.pointerId,
+               tactil: e.pointerType !== "mouse" };
+  /* Capturar el puntero mantiene el arrastre vivo aunque el dedo se salga del
+     tablero. Si el puntero ya no existe tira, y no es motivo para cortar nada. */
+  try { elTablero.setPointerCapture(e.pointerId); } catch(err){}
+});
+
+elTablero.addEventListener("pointermove", e => {
+  if (!arrastre || e.pointerId !== arrastre.id) return;
+  if (!arrastre.vivo){
+    if (Math.hypot(e.clientX - arrastre.x0, e.clientY - arrastre.y0) < ARRANQUE) return;
+    arrastre.vivo = true;
+    arrastre.el.classList.add("arrastrando");
+  }
+  pegarAlDedo(arrastre.el, e.clientX, e.clientY, arrastre.tactil);
+  marcarSobre(casillaEn(e.clientX, e.clientY));
+});
+
+function soltarArrastre(e){
+  if (!arrastre || e.pointerId !== arrastre.id) return;
+  const a = arrastre;
+  arrastre = null;
+  marcarSobre(-1);
+  if (!a.vivo) return;                      // fue un toque: que siga el click
+
+  a.el.classList.remove("arrastrando");
+  ignorarClick = true;                      // no re-procesar el toque al soltar
+  const destino = casillaEn(e.clientX, e.clientY);
+
+  if (destino >= 0 && destinos.has(destino)){
+    /* No se reubica la pieza: la transicion la lleva desde donde quedo el dedo
+       hasta el centro de la casilla, que es justo lo que se quiere ver. */
+    llevarA(destino);
+    if (coronaPend) colocar(a.el, a.s);     // esperando la coronacion: vuelve
+  } else {
+    colocar(a.el, a.s);                     // no era legal: se vuelve sola
+  }
+}
+elTablero.addEventListener("pointerup", soltarArrastre);
+elTablero.addEventListener("pointercancel", soltarArrastre);
+
 elTablero.addEventListener("click", e => {
+  if (ignorarClick){ ignorarClick = false; return; }
   const c = e.target.closest("[data-s]");
   if (!c) return;
   tocar(+c.dataset.s);

@@ -2,7 +2,7 @@
    Una partida de ajedrez no necesita red para nada, asi que la app tiene que
    abrir siempre: shell cache-first, red primero para la navegacion asi una
    version nueva entra sin que haya que borrar nada a mano. */
-const CACHE = "xchess-v1.0.0";
+const CACHE = "xchess-mk1.1";
 const SHELL = ["./", "./index.html", "./apple-touch-icon.png"];
 
 self.addEventListener("install", e => {

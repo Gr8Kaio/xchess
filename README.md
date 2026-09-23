@@ -1,6 +1,8 @@
 # xchess
 
-Ajedrez para el telefono. Contra la maquina o dos jugadores pasando el aparato.
+*MK 1.1*
+
+Ajedrez para el telefono (la interfaz esta en ingles). Contra la maquina o dos jugadores pasando el aparato.
 
 **Jugar:** https://gr8kaio.github.io/xchess/
 
@@ -16,6 +18,9 @@ no hay servidor ni cuenta ni nada que registrar.
 - Reglas completas: enroque corto y largo, captura al paso, coronacion a las
   cuatro piezas, jaque, mate, rey ahogado, regla de las cincuenta jugadas,
   triple repeticion y tablas por material insuficiente.
+- Dos formas de mover: tocar origen y destino, o **arrastrar la pieza**. El
+  arrastre recien arranca cuando el dedo se corrio de verdad, asi que apoyar y
+  levantar sigue siendo un toque y nunca mueve nada sin querer.
 - Notacion algebraica con desambiguacion (`Nbd2`, `R1e4`), piezas comidas y
   ventaja de material.
 - Deshacer, girar el tablero a mano, tema claro y oscuro.
